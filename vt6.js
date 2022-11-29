@@ -53,7 +53,7 @@ const LisaaJoukkue = React.memo(function(props) {
         <form>
             <fieldset>
                 <legend>Joukkueen tiedot</legend>
-                <label>Nimi 
+                <label className="joukkueen-nimi">Nimi 
                     <input type="text"></input>
                 </label>
                 <Leimaustavat
@@ -75,18 +75,15 @@ const LisaaJoukkue = React.memo(function(props) {
 const Leimaustavat = React.memo(function Leimaustavat(props) {
     /* jshint ignore:start */
     return (
-        <div>
+        <div className="leimaustavat-kokonaisuus">
             <label>Leimaustavat</label>
-            <div>
+            <span>
                 {props.vaihtoehdot.map((item, index) => {
-                    return  <label key={index}>{item}
+                    return  <label className="nimi-inputilla" key={index}>{item}
                                 <input type="checkbox"></input>
                             </label>
                 })}
-                <label>GPS
-                    <input type="checkbox" />
-                </label>
-            </div>
+            </span>
         </div>
     );
     /* jshint ignore: end */
@@ -104,17 +101,17 @@ const Sarjat = React.memo(function Sarjat(props) {
     
     /*jshint ignore: start */
     return (
-        <div>
+        <div className="sarjat-kokonaisuus">
             <label>Sarjat</label>
-            <div>
+            <span>
                 {props.vaihtoehdot.map((item) => {
                     return (
-                        <label key={item.id}>{item.nimi}
+                        <label className="nimi-inputilla" key={item.id}>{item.nimi}
                             <input type="radio" name="sarjaradio" onChange={selectChange} />
                         </label>
                     )
                 })}
-            </div>
+            </span>
         </div>
     );
     /*jshint ignore: end */

@@ -5,43 +5,32 @@ body {
  
  /* Fieldsetin ulkoasu */
  fieldset {
-    max-width: 25em;
+    max-width: 40em;
     clear: both;
  }
  
  /* Formin sisällä label + input ulkoasu */
- fieldset > div {
-    display: block;
- }
- div > label {
-    display: inline-block;
-    max-width: 25em;
-    margin: .5em;
- }
- 
- label input {
-    float: right;
- }
- 
+
  input[type="text"] {
-    width: 60%;
+   float: right;
+   width: 60%;
+   margin-right: 10em;
+   margin-bottom: 5em;
  }
  
- /* Sarjakyselyn vaihtoehdot */
- p {
-    clear: both;
-    max-width: 25em;
-    padding: .5em;
+ .sarjat-kokonaisuus, .leimaustavat-kokonaisuus {
+   display: block;
+   clear: both;
  }
- 
- p span {
-    float: right;
+
+ span {
+   float: right;
+   margin-bottom: 1em;
  }
- 
- p span label {
-    text-align: right;
-    display: block;
-    padding: .1em;
-    margin: 0;
+
+ .nimi-inputilla {
+   text-align: right;
+   display: block;
+   padding: .1em;
+   margin: 0 10em 0 0;
  }
- 
