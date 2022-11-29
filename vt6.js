@@ -13,10 +13,29 @@ const App = function(props) {
     const [state, setState] = React.useState({"kilpailu": kopioi_kilpailu(data) });
     console.log( state.kilpailu );
 
+    /**
+     * Lisää joukkueen App:n stateen
+     * lisattyJoukkue on seuraavankaltainen objekti:
+     * {
+     *  "nimi": ei-tyhjä-nimi,
+     *  "leimaustapa": [] (vähintään tyhjä array),
+     *  "sarja": pakollinen-valittu-sarja,
+     *  "jasenet": [jäsen1, jäsen2, ...] (vähintään 2 jäsentä)
+     * }
+     * @param {Object} lisattyJoukkue 
+     */
+    let lisaaJoukkue = function(lisattyJoukkue) {
+        // lisättyJoukkue lisätään uniikki id ja tyhjä rastileimaus[]
+        // päivittää staten lisäämällä uuden joukkueen
+        // ^ pitää luultavasti päivittää vain state.kilpailu.joukkueet
+        // ^ tee oma funktio kopioi_kilpailu_shallow_paitsi_joukkueet...?
+        console.log(lisattyJoukkue);
+    };
+
     /* jshint ignore:start */
     return (
         <div>
-            <LisaaJoukkue />
+            <LisaaJoukkue lisaaJoukkue={lisaaJoukkue} />
             <ListaaJoukkueet />
         </div>
     );
@@ -24,16 +43,50 @@ const App = function(props) {
 };
 
 const LisaaJoukkue = function(props) {
+    const [state, setState] = React.useState(
+        {
+            "nimi": "",
+            "leimaustapa": [],
+            "sarja": props.sarjat[0].id,
+            "jasenet": []
+        }
+    );
+
+    let handleChange = function(kohta, sisalto) {
+        let uusistate = {...state};
+        uusistate[kohta] = sisalto;
+        setState(uusistate);
+    };
+
+    let handleLisaa = function(event) {
+        // uusiJoukkue sisältöineen
+        event.preventDefault();
+        let uusiJoukkue = {...state};
+        console.log(uusiJoukkue);
+        let tyhjaJoukkue = {
+            "nimi": "",
+            "leimaustapa": [],
+            "sarja": props.sarjat[0].id,
+            "jasenet": []
+        };
+        setState(tyhjaJoukkue);
+        props.lisaaJoukkue(uusiJoukkue);
+    };
     /* jshint ignore:start */
     return (
         <form>
-            <JoukkueenTiedot />
+            <JoukkueenTiedot change={handleChange} />
             <Jasenet />
+            <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
 };
 
 
+/**
+ * JoukkueenTiedot pitää omaa statea, jossa on:
+ * - inputtien tiedot (nimi, mitkä leimaustavat, sarjat)
+ */
 const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 
     /* jshint ignore:start */
