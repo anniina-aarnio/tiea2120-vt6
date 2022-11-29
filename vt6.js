@@ -27,6 +27,37 @@ const LisaaJoukkue = function(props) {
     /* jshint ignore:start */
     return (
         <form>
+            <fieldset>
+                <legend>Joukkueen tiedot</legend>
+                <label>Nimi
+                    <input type="text"></input>
+                </label>
+                <div className="leimaustavat-kokonaisuus">
+                    <label>Leimaustavat</label>
+                    <span>
+                        <label className="nimi-inputilla">Lomake
+                            <input type="checkbox" />
+                        </label>
+                        <label className="nimi-inputilla">QR
+                            <input type="checkbox" />
+                        </label>
+                    </span>
+                </div>
+                <div className="sarjat-kokonaisuus">
+                    <label>Sarjat</label>
+                    <span>
+                        <label className="nimi-inputilla">3h
+                            <input type="radio" name="sarjaradio" />
+                        </label>
+                        <label className="nimi-inputilla">1h
+                            <input type="radio" name="sarjaradio" />
+                        </label>
+                    </span>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Jäsenet</legend>
+            </fieldset>
         </form>);
     /* jshint ignore:end */
 };
