@@ -57,6 +57,18 @@ const LisaaJoukkue = function(props) {
             </fieldset>
             <fieldset>
                 <legend>Jäsenet</legend>
+                <label>Jäsen 1
+                    <input type="text" />
+                </label>
+                <label>Jäsen 2
+                    <input type="text" />
+                </label>
+                <label>Jäsen 3
+                    <input type="text" />
+                </label>
+                <label>Jäsen 4
+                    <input type="text" />
+                </label>
             </fieldset>
         </form>);
     /* jshint ignore:end */

@@ -1,36 +1,40 @@
 body {
     background-color: white;
     color: black;
- }
+}
  
- /* Fieldsetin ulkoasu */
- fieldset {
+/* Fieldsetin ulkoasu */
+fieldset {
     max-width: 40em;
     clear: both;
- }
+}
  
  /* Formin sisällä label + input ulkoasu */
 
- input[type="text"] {
+label {
+   display: block;
+   padding: .1em;
+   margin: .1em;
+}
+input[type="text"] {
    float: right;
    width: 60%;
    margin-right: 10em;
-   margin-bottom: 5em;
- }
+}
  
- .sarjat-kokonaisuus, .leimaustavat-kokonaisuus {
+.sarjat-kokonaisuus, .leimaustavat-kokonaisuus {
    display: block;
    clear: both;
- }
+}
 
- span {
+span {
    float: right;
    margin-bottom: 1em;
- }
+}
 
- .nimi-inputilla {
+.nimi-inputilla {
    text-align: right;
    display: block;
    padding: .1em;
    margin: 0 10em 0 0;
- }
+}
