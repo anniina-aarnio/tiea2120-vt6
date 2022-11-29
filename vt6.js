@@ -13,151 +13,34 @@ const App = function(props) {
     const [state, setState] = React.useState({"kilpailu": kopioi_kilpailu(data) });
     console.log( state.kilpailu );
 
-    // ---------- itse tehdyt -----------
-
-
     /* jshint ignore:start */
-    return (<div>
-                <React.StrictMode>
-                    <h1>Lisää joukkue</h1>
-                    <LisaaJoukkue tiedot={state.kilpailu}/>
-                    <ListaaJoukkueet tiedot={state.kilpailu}/>
-                </React.StrictMode>
-            </div>
+    return (
+        <div>
+            <LisaaJoukkue />
+            <ListaaJoukkueet />
+        </div>
     );
-  /* jshint ignore:end */
+    /* jshint ignore:end */
 };
 
-/**
- * Lisää joukkue -komponentti
- * Pitää tallessa lisättävän joukkueen tietoja (nimi, leimaustavat, sarja)
- */
-const LisaaJoukkue = React.memo(function(props) {
-
-    let ekaSarja = props.tiedot.sarjat[0];
-
-    const [state, setState] = React.useState({
-        "nimi": "",
-        "leimaustapa": [],
-        "sarja": ekaSarja
-    });
-
-    let handleChange = function(kohta, valittu) {
-        let uusistate = {...state};
-        uusistate[kohta] = valittu;
-        setState(uusistate);
-    };
-
+const LisaaJoukkue = function(props) {
     /* jshint ignore:start */
     return (
         <form>
-            <fieldset>
-                <legend>Joukkueen tiedot</legend>
-                <label className="joukkueen-nimi">Nimi 
-                    <input type="text"></input>
-                </label>
-                <Leimaustavat
-                    vaihtoehdot={props.tiedot.leimaustavat} />
-                <Sarjat
-                    vaihtoehdot={props.tiedot.sarjat}
-                    selected={state.sarja}
-                    change={handleChange} />
-            </fieldset>
-        </form>
-    );
+        </form>);
     /* jshint ignore:end */
-});
+};
 
 
-/**
- * Leimaustavat -komponentti
- */
-const Leimaustavat = React.memo(function Leimaustavat(props) {
+const ListaaJoukkueet = function(props) {
     /* jshint ignore:start */
     return (
-        <div className="leimaustavat-kokonaisuus">
-            <label>Leimaustavat</label>
-            <span>
-                {props.vaihtoehdot.map((item, index) => {
-                    return  <label className="nimi-inputilla" key={index}>{item}
-                                <input type="checkbox"></input>
-                            </label>
-                })}
-            </span>
-        </div>
-    );
-    /* jshint ignore: end */
-});
-
-
-/**
- * Sarjat -komponentti
- */
-const Sarjat = React.memo(function Sarjat(props) {
-  
-    let selectChange = function(e) {
-        props.change(props.name, e.target.value);
-    };
-    
-    /*jshint ignore: start */
-    return (
-        <div className="sarjat-kokonaisuus">
-            <label>Sarjat</label>
-            <span>
-                {props.vaihtoehdot.map((item) => {
-                    return (
-                        <label className="nimi-inputilla" key={item.id}>{item.nimi}
-                            <input type="radio" name="sarjaradio" onChange={selectChange} />
-                        </label>
-                    )
-                })}
-            </span>
-        </div>
-    );
-    /*jshint ignore: end */
-});
-
-/**
-* Tätä voisi käyttää tyylillä:
-* <OtsikkoJaVaihtoehdot otsikko="Leimaustavat" inputType="checkbox" vaihtoehdot={leimaustavat} />
-* <OtsikkoJaVaihtoehdot otsikko="Sarja" inputType="radio" vaihtoehdot={sarjat} />
-* HUOM! checked radioon on vaikea toteuttaa tällä
-* lisää myös React.memo()
-* @param {Object} props 
-* @returns 
-*/
-const OtsikkoJaVaihtoehdot = React.memo(function OtsikkoJaVaihtoehdot(props) {
-    let checked = props.checked;
-  
-    /* jshint ignore: start */
-    return (
-      <div>
-        <label>{props.otsikko}</label>
-        <div>
-            {props.vaihtoehdot.map(function(item) {
-                return <label key={item}>{item}
-                    <input type={props.inputType} name={props.otsikko}/>
-                    </label>
-            })}
-        </div>
-      </div>
-    );
-    /* jshint ignore: end*/
-});
-
-
-/**
- * Listaa Joukkueet -komponentti
- */
-const ListaaJoukkueet = React.memo(function ListaaJoukkueet(props) {
-    /* jshint ignore:start */
-    return (<table>
-      </table>)
+        <table>
+        </table>);
     /* jshint ignore:end */
-});
+};
 
 
-// Lisääminen root:iin
 const root = ReactDOM.createRoot( document.getElementById('root'));
 root.render(
     /* jshint ignore:start */
@@ -176,7 +59,6 @@ function kopioi_kilpailu(data) {
     kilpailu.alkuaika = data.alkuaika;
     kilpailu.kesto = data.kesto;
     kilpailu.leimaustavat = Array.from( data.leimaustavat );
-
     let uudet_rastit = new Map(); // tehdään uusille rasteille jemma, josta niiden viitteet on helppo kopioida
     function kopioi_rastit(j) {
         let uusir = {};
@@ -207,7 +89,7 @@ function kopioi_kilpailu(data) {
         uusij.nimi = j.nimi;
         uusij.id = j.id;
         uusij.sarja = uudet_sarjat.get(j.sarja);
-  
+
         uusij["jasenet"] = Array.from( j["jasenet"] );
         function kopioi_leimaukset(j) {
             let uusir = {};
@@ -215,11 +97,11 @@ function kopioi_kilpailu(data) {
             uusir.rasti = uudet_rastit.get(j.rasti); // haetaan vanhaa rastia vastaavan uuden rastin viite
             return uusir;
         }
-        uusij["rastit"] = Array.from( j["rastileimaukset"], kopioi_leimaukset );
+        uusij["rastileimaukset"] = Array.from( j["rastileimaukset"], kopioi_leimaukset );
         uusij["leimaustapa"] = Array.from( j["leimaustapa"] );
         return uusij;
     }
-  
+
     kilpailu.joukkueet = Array.from( data.joukkueet, kopioi_joukkue);
     return kilpailu;
 }
