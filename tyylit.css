@@ -14,7 +14,7 @@ fieldset {
 fieldset > label {
    display: block;
    padding: .1em;
-   margin: .1em;
+   margin-bottom: .1em;
 }
 
 
