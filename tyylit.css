@@ -1,0 +1,47 @@
+body {
+    background-color: white;
+    color: black;
+ }
+ 
+ /* Fieldsetin ulkoasu */
+ fieldset {
+    max-width: 25em;
+    clear: both;
+ }
+ 
+ /* Formin sisällä label + input ulkoasu */
+ fieldset > div {
+    display: block;
+ }
+ div > label {
+    display: inline-block;
+    max-width: 25em;
+    margin: .5em;
+ }
+ 
+ label input {
+    float: right;
+ }
+ 
+ input[type="text"] {
+    width: 60%;
+ }
+ 
+ /* Sarjakyselyn vaihtoehdot */
+ p {
+    clear: both;
+    max-width: 25em;
+    padding: .5em;
+ }
+ 
+ p span {
+    float: right;
+ }
+ 
+ p span label {
+    text-align: right;
+    display: block;
+    padding: .1em;
+    margin: 0;
+ }
+ 
