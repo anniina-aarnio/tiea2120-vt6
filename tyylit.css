@@ -11,11 +11,13 @@ fieldset {
  
  /* Formin sisällä label + input ulkoasu */
 
-label {
+fieldset > label {
    display: block;
    padding: .1em;
    margin: .1em;
 }
+
+
 input[type="text"] {
    float: right;
    width: 60%;
@@ -26,6 +28,7 @@ input[type="text"] {
    display: block;
    clear: both;
 }
+
 
 span {
    float: right;

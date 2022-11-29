@@ -133,9 +133,10 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
                         }
                         return <label className="nimi-inputilla" key={item.id}> 
                             {item.nimi}
-                        <input type="radio" name="sarjaradio" />
-                    </label>
-                    })}
+                            <input type="radio" name="sarjaradio" />
+                        </label>
+                        })
+                    }
                 </span>
             </div>
         </fieldset>
