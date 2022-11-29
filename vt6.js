@@ -35,19 +35,25 @@ const App = function(props) {
     /* jshint ignore:start */
     return (
         <div>
-            <LisaaJoukkue lisaaJoukkue={lisaaJoukkue} />
+            <LisaaJoukkue lisaaJoukkue={lisaaJoukkue} kilpailu={state.kilpailu}/>
             <ListaaJoukkueet />
         </div>
     );
     /* jshint ignore:end */
 };
 
+
+/**
+ * 
+ * @param {Object} props 
+ * @returns JSX-muodossa form joukkueen lisäämiselle
+ */
 const LisaaJoukkue = function(props) {
     const [state, setState] = React.useState(
         {
             "nimi": "",
             "leimaustapa": [],
-            "sarja": props.sarjat[0].id,
+            "sarja": props.kilpailu.sarjat[0].id,
             "jasenet": []
         }
     );
@@ -75,7 +81,7 @@ const LisaaJoukkue = function(props) {
     /* jshint ignore:start */
     return (
         <form>
-            <JoukkueenTiedot change={handleChange} />
+            <JoukkueenTiedot change={handleChange} sarjat={props.kilpailu.sarjat} selected={state.sarja}/>
             <Jasenet />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
@@ -110,12 +116,15 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
                 <span>
-                    <label className="nimi-inputilla">3h
+                    {Object.entries(props.sarjat).map(function(item) {
+                        console.log(item);
+                        if (item == props.selected) {
+                            return <label className="nimi-inputilla" key={item[0]}>{item[1].nimi}<input type="radio" name="sarjaradio" selected="true" /></label>
+                        }
+                        return <label className="nimi-inputilla" key={item[0]}>{item[1].nimi}
                         <input type="radio" name="sarjaradio" />
                     </label>
-                    <label className="nimi-inputilla">1h
-                        <input type="radio" name="sarjaradio" />
-                    </label>
+                    })}
                 </span>
             </div>
         </fieldset>
