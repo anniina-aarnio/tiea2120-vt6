@@ -81,7 +81,12 @@ const LisaaJoukkue = function(props) {
     /* jshint ignore:start */
     return (
         <form>
-            <JoukkueenTiedot change={handleChange} sarjat={props.kilpailu.sarjat} selected={state.sarja}/>
+            <JoukkueenTiedot
+                change={handleChange}
+                leimaustavat={props.kilpailu.leimaustavat}
+                selectedLeimaustavat={state.leimaustapa}
+                sarjat={props.kilpailu.sarjat}
+                selectedSarja={state.sarja} />
             <Jasenet />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
@@ -103,6 +108,10 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
             return 1;
         } return 0;
     });
+
+    let leimaustavat = Array.from(props.leimaustavat);
+    leimaustavat.sort();
+
     console.log(sarjat);
     /* jshint ignore:start */
     return (
@@ -114,12 +123,12 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
             <div className="leimaustavat-kokonaisuus">
                 <label>Leimaustavat</label>
                 <span>
-                    <label className="nimi-inputilla">Lomake
-                        <input type="checkbox" />
-                    </label>
-                    <label className="nimi-inputilla">QR
-                        <input type="checkbox" />
-                       </label>
+                    {leimaustavat.map(function(item, index) {
+                        return <label className="nimi-inputilla" key={index}>
+                            {item}
+                                <input type="checkbox" name="leimaustavat" />
+                        </label>
+                    })}
                 </span>
             </div>
             <div className="sarjat-kokonaisuus">
