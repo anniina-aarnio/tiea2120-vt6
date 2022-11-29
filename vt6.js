@@ -95,6 +95,15 @@ const LisaaJoukkue = function(props) {
  */
 const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 
+    let sarjat = Array.from(props.sarjat);
+    sarjat.sort((a, b) => {
+        if (a.nimi < b.nimi) {
+            return -1;
+        } else if (b.nimi < a.nimi) {
+            return 1;
+        } return 0;
+    });
+    console.log(sarjat);
     /* jshint ignore:start */
     return (
         <fieldset>
@@ -116,12 +125,14 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
                 <span>
-                    {Object.entries(props.sarjat).map(function(item) {
-                        console.log(item);
+                    {sarjat.map(function(item) {
                         if (item == props.selected) {
-                            return <label className="nimi-inputilla" key={item[0]}>{item[1].nimi}<input type="radio" name="sarjaradio" selected="true" /></label>
+                            return <label className="nimi-inputilla" key={item.id}>{item.nimi}
+                                <input type="radio" name="sarjaradio" selected="true" />
+                            </label>
                         }
-                        return <label className="nimi-inputilla" key={item[0]}>{item[1].nimi}
+                        return <label className="nimi-inputilla" key={item.id}> 
+                            {item.nimi}
                         <input type="radio" name="sarjaradio" />
                     </label>
                     })}
