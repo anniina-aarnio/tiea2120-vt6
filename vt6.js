@@ -29,7 +29,7 @@ const App = function(props) {
         // päivittää staten lisäämällä uuden joukkueen
         // ^ pitää luultavasti päivittää vain state.kilpailu.joukkueet
         // ^ tee oma funktio kopioi_kilpailu_shallow_paitsi_joukkueet...?
-        console.log(lisattyJoukkue);
+        console.log("App sanoo: ", lisattyJoukkue);
     };
 
     /* jshint ignore:start */
@@ -100,7 +100,7 @@ const LisaaJoukkue = function(props) {
                 break;
             }
         }
-        
+
         console.log(items, sisalto);
     };
 
@@ -116,13 +116,13 @@ const LisaaJoukkue = function(props) {
         // uusiJoukkue sisältöineen
         event.preventDefault();
         let uusiJoukkue = {...state};
-        console.log(uusiJoukkue);
+        uusiJoukkue.sarja = etsiSarjaIdnPerusteella(uusiJoukkue.sarja, props.kilpailu.sarjat);
 
         leimaustavat.forEach((leima) => leima.selected = false);
         let tyhjaJoukkue = {
             "nimi": "",
             "leimaustapa": leimaustavat,
-            "sarja": props.sarjat[0].id,
+            "sarja": props.kilpailu.sarjat[0].id,
             "jasenet": []
         };
         setState(tyhjaJoukkue);
@@ -169,6 +169,10 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
         props.change("nimi", event.target.value);
     };
 
+    let muutaInputinSisaltoa = function(kohta, sisalto) {
+        props.change(kohta, sisalto);
+    }
+
     /* jshint ignore:start */
     return (
         <fieldset>
@@ -188,6 +192,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
                     })}
                     </div>
                 </span>
+                <InputLista name="leimaustapa" change={muutaCheckboxia} type="checkbox" items={leimaustavat} />
             </div>
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
@@ -207,9 +212,38 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
                     }
                 </div>
                 </span>
+                <InputLista name="sarja" change={muutaRadiota} type="radio" items={sarjat} selected={props.selectedSarja} />
             </div>
         </fieldset>
     )
+    /* jshint ignore:end */
+});
+
+
+const InputLista = React.memo(function InputLista(props) {
+    /* jshint ignore:start */
+    let muutaSisaltoa = function (event) {
+        props.change(props.name, event.target.id);
+    }
+
+    return (
+        <span>
+            <div onChange={muutaSisaltoa}>
+            {props.items.map(function(item) {
+                if (item.id == props.selected) {
+                    return <label className="nimi-inputilla" key={item.id}>
+                    {item.nimi}
+                    <input type={props.type} name={props.name} id={item.id} defaultChecked="checked"/>
+                </label>
+                }
+                return <label className="nimi-inputilla" key={item.id}>
+                    {item.nimi}
+                    <input type={props.type} name={props.name} id={item.id}/>
+                </label>
+            })}
+            </div>
+        </span>
+    );
     /* jshint ignore:end */
 });
 
@@ -326,4 +360,18 @@ function aakkosjarjestysNimenMukaan(a,b) {
         return 1;
     }
     return 0;
+}
+
+/**
+ * Etsii sarjan id-numeron perusteella.
+ * Id on annettu merkkijonona
+ * @param {String} id 
+ * @return sarja-objekti
+ */
+function etsiSarjaIdnPerusteella(id, sarjat) {
+    for (let sarja of sarjat) {
+        if (sarja.id == id) {
+            return sarja;
+        }
+    }
 }
