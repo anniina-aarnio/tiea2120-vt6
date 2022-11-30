@@ -51,9 +51,11 @@ const App = function(props) {
  * @returns JSX-muodossa form joukkueen lisäämiselle
  */
 const LisaaJoukkue = function(props) {
+    // tehdään leimaustavoista oma listansa, jossa jokaisella leimaustavalla on
+    // aluksi selected: false ja id:index
     let leimaustavat = [];
-    Array.from(props.kilpailu.leimaustavat).map((item) => {
-        leimaustavat.push({"nimi": item, "selected": false});
+    Array.from(props.kilpailu.leimaustavat).map((item, index) => {
+        leimaustavat.push({"id": index, "nimi": item, "selected": false});
     });
 
     const [state, setState] = React.useState(
@@ -66,7 +68,12 @@ const LisaaJoukkue = function(props) {
     );
 
     /**
-     * 
+     * Jos joukkueen tiedoissa tai jäsenissä tulee muutosta
+     * kutsutaan tätä (kertomalla mitä kohtaa muutetaan)
+     * Jos kyseessä on nimi tai sarja,
+     * tämä funktio hoitaa sen itse
+     * Jos täytyy kajota listoihin, kutsutaan muokkaaListaChange 
+     * samoilla parametreilla
      * @param {String} kohta 
      * @param {String} sisalto 
      */
@@ -82,9 +89,29 @@ const LisaaJoukkue = function(props) {
 
     let muokkaaListaChange = function(kohta,sisalto) {
         let uusistate = {...state};
-
+        let items = uusistate[kohta];
+        for (let item of items) {
+            if (item.id == sisalto) {
+                if (item.selected) {
+                    item.selected = false;
+                } else {
+                    item.selected = true;
+                }
+                break;
+            }
+        }
+        
+        console.log(items, sisalto);
     };
 
+    /**
+     * Hoitaa lisäysnapin painalluksen jälkeisen toiminnan:
+     * - luo uuden joukkueen
+     * - lisää siihen täydennetyt tiedot
+     * - tyhjentää staten alkutilanteeseen
+     * - kutsuu App:n lisaaJoukkue-funktiota
+     * @param {Event} event 
+     */
     let handleLisaa = function(event) {
         // uusiJoukkue sisältöineen
         event.preventDefault();
@@ -101,6 +128,7 @@ const LisaaJoukkue = function(props) {
         setState(tyhjaJoukkue);
         props.lisaaJoukkue(uusiJoukkue);
     };
+
     /* jshint ignore:start */
     return (
         <form>
@@ -130,7 +158,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
     leimaustavat.sort(aakkosjarjestysNimenMukaan);
 
     let muutaCheckboxia = function(event) {
-        props.change("jasenet", event.target.parentElement);
+        props.change("leimaustapa", event.target.id);
     };
 
     let muutaRadiota = function(event) {
@@ -155,7 +183,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
                     {leimaustavat.map(function(item, index) {
                         return <label className="nimi-inputilla" key={index}>
                             {item.nimi}
-                                <input type="checkbox" name="leimaustavat"/>
+                                <input type="checkbox" name="leimaustapa" id={item.id}/>
                         </label>
                     })}
                     </div>
