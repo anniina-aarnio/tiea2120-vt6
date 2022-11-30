@@ -196,23 +196,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
             </div>
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
-                <span>
-                <div onChange={muutaRadiota}>
-                    {sarjat.map(function(item) {
-                        if (item.id == props.selectedSarja) {
-                            return <label className="nimi-inputilla" key={item.id}>{item.nimi}
-                                <input type="radio" name="sarjaradio" defaultChecked="checked" id={item.id} />
-                            </label>
-                        }
-                        return <label className="nimi-inputilla" key={item.id}> 
-                            {item.nimi}
-                            <input type="radio" name="sarjaradio" id={item.id}/>
-                        </label>
-                        })
-                    }
-                </div>
-                </span>
-                <InputLista name="sarja" change={muutaRadiota} type="radio" items={sarjat} selected={props.selectedSarja} />
+                <InputLista name="sarja" change={muutaInputinSisaltoa} type="radio" items={sarjat} selected={props.selectedSarja} />
             </div>
         </fieldset>
     )
