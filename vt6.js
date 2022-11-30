@@ -118,6 +118,12 @@ const LisaaJoukkue = function(props) {
         let uusiJoukkue = {...state};
         uusiJoukkue.sarja = etsiSarjaIdnPerusteella(uusiJoukkue.sarja, props.kilpailu.sarjat);
 
+        let palautettavatLeimaukset = [];
+        Array.from(uusiJoukkue.leimaustapa).filter((item) => item.selected).map((item) => {
+            palautettavatLeimaukset.push(Number(item.id));
+        });
+        uusiJoukkue.leimaustapa = palautettavatLeimaukset;
+
         leimaustavat.forEach((leima) => leima.selected = false);
         let tyhjaJoukkue = {
             "nimi": "",
@@ -171,7 +177,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 
     let muutaInputinSisaltoa = function(kohta, sisalto) {
         props.change(kohta, sisalto);
-    }
+    };
 
     /* jshint ignore:start */
     return (
@@ -182,17 +188,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
             </label>
             <div className="leimaustavat-kokonaisuus">
                 <label>Leimaustavat</label>
-                <span>
-                    <div onChange={muutaCheckboxia}>
-                    {leimaustavat.map(function(item, index) {
-                        return <label className="nimi-inputilla" key={index}>
-                            {item.nimi}
-                                <input type="checkbox" name="leimaustapa" id={item.id}/>
-                        </label>
-                    })}
-                    </div>
-                </span>
-                <InputLista name="leimaustapa" change={muutaCheckboxia} type="checkbox" items={leimaustavat} />
+                <InputLista name="leimaustapa" change={muutaInputinSisaltoa} type="checkbox" items={leimaustavat} />
             </div>
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
@@ -283,6 +279,7 @@ function kopioi_kilpailu(data) {
     kilpailu.alkuaika = data.alkuaika;
     kilpailu.kesto = data.kesto;
     kilpailu.leimaustavat = Array.from( data.leimaustavat );
+
     let uudet_rastit = new Map(); // tehdään uusille rasteille jemma, josta niiden viitteet on helppo kopioida
     function kopioi_rastit(j) {
         let uusir = {};
