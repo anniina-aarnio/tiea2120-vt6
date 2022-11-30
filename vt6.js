@@ -49,19 +49,38 @@ const App = function(props) {
  * @returns JSX-muodossa form joukkueen lisäämiselle
  */
 const LisaaJoukkue = function(props) {
+    let leimaustavat = [];
+    Array.from(props.kilpailu.leimaustavat).map((item) => {
+        leimaustavat.push({"nimi": item, "selected": false});
+    });
+
     const [state, setState] = React.useState(
         {
             "nimi": "",
-            "leimaustapa": [],
+            "leimaustapa": leimaustavat,
             "sarja": props.kilpailu.sarjat[0].id,
             "jasenet": []
         }
     );
 
+    /**
+     * 
+     * @param {String} kohta 
+     * @param {String} sisalto 
+     */
     let handleChange = function(kohta, sisalto) {
+        if (kohta == "nimi" || kohta == "sarja") {
+            let uusistate = {...state};
+            uusistate[kohta] = sisalto;
+            setState(uusistate);
+        } else {
+             muokkaaListaChange(kohta, sisalto);
+        }
+    };
+
+    let muokkaaListaChange = function(kohta,sisalto) {
         let uusistate = {...state};
-        uusistate[kohta] = sisalto;
-        setState(uusistate);
+        
     };
 
     let handleLisaa = function(event) {
@@ -69,9 +88,11 @@ const LisaaJoukkue = function(props) {
         event.preventDefault();
         let uusiJoukkue = {...state};
         console.log(uusiJoukkue);
+
+        leimaustavat.forEach((leima) => leima.selected = false);
         let tyhjaJoukkue = {
             "nimi": "",
-            "leimaustapa": [],
+            "leimaustapa": leimaustavat,
             "sarja": props.sarjat[0].id,
             "jasenet": []
         };
@@ -83,7 +104,7 @@ const LisaaJoukkue = function(props) {
         <form>
             <JoukkueenTiedot
                 change={handleChange}
-                leimaustavat={props.kilpailu.leimaustavat}
+                leimaustavat={leimaustavat}
                 selectedLeimaustavat={state.leimaustapa}
                 sarjat={props.kilpailu.sarjat}
                 selectedSarja={state.sarja} />
@@ -101,16 +122,10 @@ const LisaaJoukkue = function(props) {
 const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 
     let sarjat = Array.from(props.sarjat);
-    sarjat.sort((a, b) => {
-        if (a.nimi < b.nimi) {
-            return -1;
-        } else if (b.nimi < a.nimi) {
-            return 1;
-        } return 0;
-    });
+    sarjat.sort(aakkosjarjestysNimenMukaan);
 
     let leimaustavat = Array.from(props.leimaustavat);
-    leimaustavat.sort();
+    leimaustavat.sort(aakkosjarjestysNimenMukaan);
 
     let muutaCheckboxia = function(event) {
         console.log(event.target.parentElement);
@@ -118,12 +133,10 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
     };
 
     let muutaRadiota = function(event) {
-        console.log(event.target.id);
         props.change("sarja", event.target.id);
     };
 
     let muutaNimea = function(event) {
-        console.log(event.target.value);
         props.change("nimi", event.target.value);
     };
 
@@ -140,7 +153,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
                     <div onChange={muutaCheckboxia}>
                     {leimaustavat.map(function(item, index) {
                         return <label className="nimi-inputilla" key={index}>
-                            {item}
+                            {item.nimi}
                                 <input type="checkbox" name="leimaustavat"/>
                         </label>
                     })}
@@ -153,6 +166,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
                 <div onChange={muutaRadiota}>
                     {sarjat.map(function(item) {
                         if (item == props.selected) {
+                            console.log(item);
                             return <label className="nimi-inputilla" key={item.id}>{item.nimi}
                                 <input type="radio" name="sarjaradio" checked="checked" id={item.id} />
                             </label>
@@ -268,4 +282,20 @@ function kopioi_kilpailu(data) {
 
     kilpailu.joukkueet = Array.from( data.joukkueet, kopioi_joukkue);
     return kilpailu;
+}
+
+/**
+ * Sorting-funktion apufunktio
+ * Ottaa kaksi objektia, joilla on kenttä "nimi"
+ * @param {Object} a 
+ * @param {Object} b 
+ * @returns 
+ */
+function aakkosjarjestysNimenMukaan(a,b) {
+    if (a.nimi < b.nimi) {
+        return -1;
+    } else if (b.nimi < a.nimi) {
+        return 1;
+    }
+    return 0;
 }
