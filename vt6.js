@@ -44,7 +44,9 @@ const App = function(props) {
 
 
 /**
- * 
+ * Propseissa:
+ * .lisaaJoukkue (funktio, jolla joukkue lisätään Appin stateen)
+ * .kilpailu (Appin statesta sen hetkinen kilpailu ~= data)
  * @param {Object} props 
  * @returns JSX-muodossa form joukkueen lisäämiselle
  */
@@ -80,7 +82,7 @@ const LisaaJoukkue = function(props) {
 
     let muokkaaListaChange = function(kohta,sisalto) {
         let uusistate = {...state};
-        
+
     };
 
     let handleLisaa = function(event) {
@@ -128,7 +130,6 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
     leimaustavat.sort(aakkosjarjestysNimenMukaan);
 
     let muutaCheckboxia = function(event) {
-        console.log(event.target.parentElement);
         props.change("jasenet", event.target.parentElement);
     };
 
@@ -165,10 +166,9 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
                 <span>
                 <div onChange={muutaRadiota}>
                     {sarjat.map(function(item) {
-                        if (item == props.selected) {
-                            console.log(item);
+                        if (item.id == props.selectedSarja) {
                             return <label className="nimi-inputilla" key={item.id}>{item.nimi}
-                                <input type="radio" name="sarjaradio" checked="checked" id={item.id} />
+                                <input type="radio" name="sarjaradio" defaultChecked="checked" id={item.id} />
                             </label>
                         }
                         return <label className="nimi-inputilla" key={item.id}> 
