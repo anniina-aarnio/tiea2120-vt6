@@ -112,40 +112,58 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
     let leimaustavat = Array.from(props.leimaustavat);
     leimaustavat.sort();
 
-    console.log(sarjat);
+    let muutaCheckboxia = function(event) {
+        console.log(event.target.parentElement);
+        props.change("jasenet", event.target.parentElement);
+    };
+
+    let muutaRadiota = function(event) {
+        console.log(event.target.id);
+        props.change("sarja", event.target.id);
+    };
+
+    let muutaNimea = function(event) {
+        console.log(event.target.value);
+        props.change("nimi", event.target.value);
+    };
+
     /* jshint ignore:start */
     return (
         <fieldset>
             <legend>Joukkueen tiedot</legend>
             <label>Nimi
-                <input type="text"></input>
+                <input type="text" onChange={muutaNimea}></input>
             </label>
             <div className="leimaustavat-kokonaisuus">
                 <label>Leimaustavat</label>
                 <span>
+                    <div onChange={muutaCheckboxia}>
                     {leimaustavat.map(function(item, index) {
                         return <label className="nimi-inputilla" key={index}>
                             {item}
-                                <input type="checkbox" name="leimaustavat" />
+                                <input type="checkbox" name="leimaustavat"/>
                         </label>
                     })}
+                    </div>
                 </span>
             </div>
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
                 <span>
+                <div onChange={muutaRadiota}>
                     {sarjat.map(function(item) {
                         if (item == props.selected) {
                             return <label className="nimi-inputilla" key={item.id}>{item.nimi}
-                                <input type="radio" name="sarjaradio" selected="true" />
+                                <input type="radio" name="sarjaradio" checked="checked" id={item.id} />
                             </label>
                         }
                         return <label className="nimi-inputilla" key={item.id}> 
                             {item.nimi}
-                            <input type="radio" name="sarjaradio" />
+                            <input type="radio" name="sarjaradio" id={item.id}/>
                         </label>
                         })
                     }
+                </div>
                 </span>
             </div>
         </fieldset>
@@ -188,7 +206,9 @@ const ListaaJoukkueet = function(props) {
 const root = ReactDOM.createRoot( document.getElementById('root'));
 root.render(
     /* jshint ignore:start */
-    <App />,
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
     /* jshint ignore:end */
 );
 
