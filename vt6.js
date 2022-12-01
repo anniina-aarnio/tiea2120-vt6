@@ -83,20 +83,25 @@ const LisaaJoukkue = function(props) {
             uusistate[kohta] = sisalto;
             setState(uusistate);
         } else if (kohta == "leimaustapa") {
-             muokkaaListaChange(kohta, sisalto);
+             muokkaaCheckboxChange(kohta, sisalto);
         } else if (kohta == "jasenet") {
 
         }
     };
 
+    let handleChange1 = function(kohta, sisalto) {
+        let uusistate = {...state};
+        uusistate[kohta] = sisalto;
+        setState(uusistate);
+    };
+
     /**
-     * 
+     * Muokkaa listatyylisen input-kokoelman 
      * @param {String} kohta 
      * @param {*} sisalto 
      */
-    let muokkaaListaChange = function(kohta,sisalto) {
-        let uusistate = {...state};
-        let items = Array.from(uusistate[kohta]);
+    let muokkaaCheckboxChange = function(kohta,sisalto) {
+        let items = Array.from(state[kohta]);
         for (let item of items) {
             if (item.id == sisalto) {
                 if (item.selected) {
@@ -107,9 +112,8 @@ const LisaaJoukkue = function(props) {
                 break;
             }
         }
-        setState(uusistate);
 
-        console.log(items, sisalto);
+        handleChange1(kohta, items);
     };
 
     /**
