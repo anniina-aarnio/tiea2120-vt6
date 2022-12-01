@@ -53,19 +53,15 @@ const App = function(props) {
 const LisaaJoukkue = function(props) {
     // tehdään leimaustavoista oma listansa, jossa jokaisella leimaustavalla on
     // aluksi selected: false ja id:index
-    let leimaustavat = [];
-    Array.from(props.kilpailu.leimaustavat).map((item, index) => {
-        leimaustavat.push({"id": index, "nimi": item, "selected": false});
-    });
-    let leimaustavat2 = Array.from(props.kilpailu.leimaustavat);
+
+    let leimaustavat = Array.from(props.kilpailu.leimaustavat);
 
     const [state, setState] = React.useState(
         {
             "nimi": "",
-            "leimaustapa": leimaustavat,
+            "leimaustapa": [],
             "sarja": props.kilpailu.sarjat[0].id,
-            "jasenet": [],
-            "checkbox": []
+            "jasenet": []
         }
     );
 
@@ -95,6 +91,7 @@ const LisaaJoukkue = function(props) {
     };
 
     let muutaInputinSisaltoa2 = function(kohta, event) {
+        console.log(kohta);
         let objekti = event;
         let type = objekti.type;
         let newstate = {...state};
@@ -145,18 +142,18 @@ const LisaaJoukkue = function(props) {
         uusiJoukkue.sarja = etsiSarjaIdnPerusteella(uusiJoukkue.sarja, props.kilpailu.sarjat);
 
         let palautettavatLeimaukset = [];
-        Array.from(uusiJoukkue.leimaustapa).filter((item) => item.selected).map((item) => {
-            palautettavatLeimaukset.push(Number(item.id));
+        leimaustavat.map((item, index) => {
+            if (uusiJoukkue.leimaustapa.includes(item)) {
+                palautettavatLeimaukset.push(index);
+            }
         });
         uusiJoukkue.leimaustapa = palautettavatLeimaukset;
 
-        leimaustavat.forEach((leima) => leima.selected = false);
         let tyhjaJoukkue = {
             "nimi": "",
-            "leimaustapa": leimaustavat,
+            "leimaustapa": [],
             "sarja": props.kilpailu.sarjat[0].id,
-            "jasenet": [],
-            "checkbox": []
+            "jasenet": []
         };
         setState(tyhjaJoukkue);
         props.lisaaJoukkue(uusiJoukkue);
@@ -167,13 +164,11 @@ const LisaaJoukkue = function(props) {
         <form>
             <JoukkueenTiedot
                 change={valitseHandle}
-                leimaustavat={leimaustavat}
-                selectedLeimaustavat={state.leimaustapa}
                 sarjat={props.kilpailu.sarjat}
                 selectedSarja={state.sarja}
-                leimaustavat2={leimaustavat2}
+                leimaustavat={leimaustavat}
                 change2={muutaInputinSisaltoa2}
-                checkedCheckboxes={state.checkbox} />
+                checkedCheckboxes={state.leimaustapa} />
             <Jasenet />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
@@ -190,8 +185,7 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
     let sarjat = Array.from(props.sarjat);
     sarjat.sort(aakkosjarjestysNimenMukaan);
 
-    let leimaustavat = Array.from(props.leimaustavat);
-    leimaustavat.sort(aakkosjarjestysNimenMukaan);
+    let leimaustavat = Array.from(props.leimaustavat).sort();
 
     let muutaNimea = function(event) {
         let validity = event.target.validity;
@@ -220,16 +214,13 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
             </label>
             <div className="leimaustavat-kokonaisuus">
                 <label>Leimaustavat</label>
-                <InputLista name="leimaustapa" change={muutaInputinSisaltoa} type="checkbox" items={leimaustavat} />
+                <InputListaAAAAAA name="leimaustapa" change={muutaInputinSisaltoa2} items={leimaustavat} type="checkbox" checked={props.checkedCheckboxes}/>
             </div>
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
                 <InputLista name="sarja" change={muutaInputinSisaltoa} type="radio" items={sarjat} selected={props.selectedSarja} />
             </div>
-            <div className="leimaustavat-kokonaisuus">
-                <label>Leimaustavat2</label>
-                <InputListaAAAAAA name="checkbox" change={muutaInputinSisaltoa2} items={props.leimaustavat2} type="checkbox" checked={props.checkedCheckboxes}/>
-            </div>
+
         </fieldset>
     )
     /* jshint ignore:end */
