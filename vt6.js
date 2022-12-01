@@ -43,7 +43,7 @@ const App = function(props) {
 };
 
 
-/**
+/** TODO: validityt ja jäsenet
  * Propseissa:
  * .lisaaJoukkue (funktio, jolla joukkue lisätään Appin stateen)
  * .kilpailu (Appin statesta sen hetkinen kilpailu ~= data)
@@ -82,14 +82,21 @@ const LisaaJoukkue = function(props) {
             let uusistate = {...state};
             uusistate[kohta] = sisalto;
             setState(uusistate);
-        } else {
+        } else if (kohta == "leimaustapa") {
              muokkaaListaChange(kohta, sisalto);
+        } else if (kohta == "jasenet") {
+
         }
     };
 
+    /**
+     * 
+     * @param {String} kohta 
+     * @param {*} sisalto 
+     */
     let muokkaaListaChange = function(kohta,sisalto) {
         let uusistate = {...state};
-        let items = uusistate[kohta];
+        let items = Array.from(uusistate[kohta]);
         for (let item of items) {
             if (item.id == sisalto) {
                 if (item.selected) {
@@ -100,6 +107,7 @@ const LisaaJoukkue = function(props) {
                 break;
             }
         }
+        setState(uusistate);
 
         console.log(items, sisalto);
     };
@@ -163,14 +171,6 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
     let leimaustavat = Array.from(props.leimaustavat);
     leimaustavat.sort(aakkosjarjestysNimenMukaan);
 
-    let muutaCheckboxia = function(event) {
-        props.change("leimaustapa", event.target.id);
-    };
-
-    let muutaRadiota = function(event) {
-        props.change("sarja", event.target.id);
-    };
-
     let muutaNimea = function(event) {
         props.change("nimi", event.target.value);
     };
@@ -200,27 +200,40 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 });
 
 
+/**
+ * InputLista ei pidä omaa statea vaan palauttelee JoukkueenTiedot:lle
+ */
 const InputLista = React.memo(function InputLista(props) {
     /* jshint ignore:start */
     let muutaSisaltoa = function (event) {
         props.change(props.name, event.target.id);
     }
 
+    let listaus = [];
+    for (let item of props.items) {
+        let rivi;
+        if (item.selected || item.id == props.selected) {
+            rivi = (
+                <label className="nimi-inputilla" key={item.id}>
+                    {item.nimi}
+                    <input type={props.type} name={props.name} id={item.id} checked={item.selected} onChange={muutaSisaltoa} />
+                </label>
+            )
+        } else {
+            rivi = (
+                <label className="nimi-inputilla" key={item.id}>
+                    {item.nimi}
+                    <input type={props.type} name={props.name} id={item.id} onChange={muutaSisaltoa} />
+                </label>
+                )
+        }
+        listaus.push(rivi);
+    }
+
     return (
         <span>
-            <div onChange={muutaSisaltoa}>
-            {props.items.map(function(item) {
-                if (item.id == props.selected) {
-                    return <label className="nimi-inputilla" key={item.id}>
-                    {item.nimi}
-                    <input type={props.type} name={props.name} id={item.id} defaultChecked="checked"/>
-                </label>
-                }
-                return <label className="nimi-inputilla" key={item.id}>
-                    {item.nimi}
-                    <input type={props.type} name={props.name} id={item.id}/>
-                </label>
-            })}
+            <div>
+                {listaus}
             </div>
         </span>
     );
