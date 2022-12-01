@@ -72,13 +72,13 @@ const LisaaJoukkue = function(props) {
      * Leimaustapalista muutetaan erillisellä listaan perehtyneellä changella
      * Jäsenet muutetaan toisella listaan perehtyneellä changella
      * @param {String} kohta "nimi", "sarja", "leimaustapa" tai "jasenet"
-     * @param {String} sisalto 
+     * @param {String} event 
      */
-    let valitseHandle = function(kohta, sisalto) {
+    let valitseHandle = function(kohta, event) {
         if (kohta == "nimi" || kohta == "sarja") {
-            handleChange(kohta, sisalto);
+            handleChange(kohta, event);
         } else if (kohta == "leimaustapa") {
-            muokkaaCheckboxChange(kohta, sisalto);
+            handleLeimaustavat(kohta, event);
         } else if (kohta == "jasenet") {
 
         }
@@ -90,7 +90,7 @@ const LisaaJoukkue = function(props) {
         setState(uusistate);
     };
 
-    let muutaInputinSisaltoa2 = function(kohta, event) {
+    let handleLeimaustavat = function(kohta, event) {
         console.log(kohta);
         let objekti = event;
         let type = objekti.type;
@@ -106,26 +106,6 @@ const LisaaJoukkue = function(props) {
         setState(newstate);
     };
 
-    /**
-     * Muokkaa listatyylisen input-kokoelman 
-     * @param {String} kohta 
-     * @param {*} sisalto 
-     */
-    let muokkaaCheckboxChange = function(kohta,sisalto) {
-        let items = Array.from(state[kohta]);
-        for (let item of items) {
-            if (item.id == sisalto) {
-                if (item.selected) {
-                    item.selected = false;
-                } else {
-                    item.selected = true;
-                }
-                break;
-            }
-        }
-
-        handleChange(kohta, items);
-    };
 
     /**
      * Hoitaa lisäysnapin painalluksen jälkeisen toiminnan:
@@ -167,7 +147,7 @@ const LisaaJoukkue = function(props) {
                 sarjat={props.kilpailu.sarjat}
                 selectedSarja={state.sarja}
                 leimaustavat={leimaustavat}
-                change2={muutaInputinSisaltoa2}
+                change2={handleLeimaustavat}
                 checkedCheckboxes={state.leimaustapa} />
             <Jasenet />
             <button onClick={handleLisaa}>Tallenna</button>
