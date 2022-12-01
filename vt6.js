@@ -72,17 +72,17 @@ const LisaaJoukkue = function(props) {
      * Leimaustapalista muutetaan erillisellä listaan perehtyneellä changella
      * Jäsenet muutetaan toisella listaan perehtyneellä changella
      * @param {String} kohta "nimi", "sarja", "leimaustapa" tai "jasenet"
-     * @param {Event.Target} event 
+     * @param {Event.Target} eventTarget event.target
      */
-    let valitseHandle = function(kohta, event) {
-        console.log(event);
+    let valitseHandle = function(kohta, eventTarget) {
+        console.log(eventTarget);
         if (kohta == "nimi"){
-            handleChange(kohta, event.value);
+            handleChange(kohta, eventTarget.value);
         }
         else if (kohta == "sarja") {
-            handleChange(kohta, event.id);
+            handleChange(kohta, eventTarget.id);
         } else if (kohta == "leimaustapa") {
-            handleLeimaustavat(kohta, event);
+            handleLeimaustavat(kohta, eventTarget);
         } else if (kohta == "jasenet") {
 
         }
@@ -121,7 +121,6 @@ const LisaaJoukkue = function(props) {
         }
         setState(newstate);
     };
-
 
     /**
      * Hoitaa lisäysnapin painalluksen jälkeisen toiminnan:
@@ -318,21 +317,21 @@ const SarjaLista = React.memo(function SarjaLista(props) {
 
 const Jasenet = React.memo(function Jasenet(props) {
     /* jshint ignore:start */
+
+    let jasenKyselyt = [];
+    for (let i = 1; i <= 5; i++) {
+        let rivi = (
+            <label key={i}>Jäsen {i}
+                <input type="text" />
+            </label>
+        )
+        jasenKyselyt.push(rivi);
+    }
+
     return (
     <fieldset>
         <legend>Jäsenet</legend>
-        <label>Jäsen 1
-            <input type="text" />
-        </label>
-        <label>Jäsen 2
-            <input type="text" />
-        </label>
-        <label>Jäsen 3
-            <input type="text" />
-        </label>
-        <label>Jäsen 4
-            <input type="text" />
-        </label>
+        {jasenKyselyt}
     </fieldset>
         
     );
