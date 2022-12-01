@@ -191,7 +191,7 @@ const LisaaJoukkue = function(props) {
                 selectedSarja={state.sarja}
                 leimaustavat={leimaustavat}
                 checkedCheckboxes={state.leimaustapa} />
-            <Jasenet />
+            <Jasenet change={valitseHandle} />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
@@ -245,11 +245,12 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
 };
 
 const SarjaLista = React.memo(function SarjaLista(props) {
-    /* jshint ignore:start */
+
     let muutaSisaltoa = function (event) {
         props.change(props.name, event.target);
-    }
+    };
 
+    /* jshint ignore:start */
     let listaus = [];
     let i = 0;
     for (let item of props.items) {
@@ -282,11 +283,12 @@ const SarjaLista = React.memo(function SarjaLista(props) {
  * InputLista ei pidä omaa statea vaan palauttelee JoukkueenTiedot:lle
  */
  const CheckboxLista = React.memo(function CheckboxLista(props) {
-    /* jshint ignore:start */
+
     let muutaSisaltoa = function (event) {
         props.change(props.name, event.target);
-    }
+    };
 
+    /* jshint ignore:start */
     let listaus = [];
     let i = 0;
     for (let item of props.items) {
@@ -316,8 +318,9 @@ const SarjaLista = React.memo(function SarjaLista(props) {
 });
 
 const Jasenet = React.memo(function Jasenet(props) {
-    /* jshint ignore:start */
 
+
+    /* jshint ignore:start */
     let jasenKyselyt = [];
     for (let i = 1; i <= 5; i++) {
         let req = "";
