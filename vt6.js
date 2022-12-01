@@ -61,7 +61,7 @@ const LisaaJoukkue = function(props) {
             "nimi": "",
             "leimaustapa": [],
             "sarja": props.kilpailu.sarjat[0].id,
-            "jasenet": []
+            "jasenet": ["", "", "", "", ""]
         }
     );
 
@@ -75,7 +75,6 @@ const LisaaJoukkue = function(props) {
      * @param {Event.Target} eventTarget event.target
      */
     let valitseHandle = function(kohta, eventTarget) {
-        console.log(eventTarget);
         if (kohta == "nimi"){
             handleChange(kohta, eventTarget.value);
         }
@@ -84,10 +83,16 @@ const LisaaJoukkue = function(props) {
         } else if (kohta == "leimaustapa") {
             handleLeimaustavat(kohta, eventTarget);
         } else if (kohta == "jasenet") {
-
+            handleJasenlista(kohta, eventTarget);
         }
     };
 
+    /**
+     * Tekee shallow kopion statesta ja
+     * Vaihtaa annettuun kohtaan annetun sisällön
+     * @param {String} kohta 
+     * @param {Object} sisalto string tai array 
+     */
     let handleChange = function(kohta, sisalto) {
         let uusistate = {...state};
         uusistate[kohta] = sisalto;
@@ -120,6 +125,14 @@ const LisaaJoukkue = function(props) {
             }
         }
         setState(newstate);
+    };
+
+    let handleJasenlista = function(kohta, eventTarget) {
+        // otetaan käsitellyn jäsenen indeksi ylös
+        let index = parseInt((eventTarget.id).replace(/[^0-9]/g, '')) - 1;
+        let uudetJasenet = Array.from(state.jasenet);
+        uudetJasenet[index] = eventTarget.value;
+        handleChange(kohta, uudetJasenet);
     };
 
     /**
@@ -168,12 +181,18 @@ const LisaaJoukkue = function(props) {
         });
         uusiJoukkue.leimaustapa = palautettavatLeimaukset;
 
+        // luodaan jäsenistä sopivampi lista
+        let palautettavatJasenet = [];
+        let jasenisto = Array.from(state.jasenet);
+        palautettavatJasenet = jasenisto.filter((item) => item != "");
+        uusiJoukkue.jasenet = palautettavatJasenet;
+
         // luodaan tyhjä joukkue, jolla tyhjennetään formi
         let tyhjaJoukkue = {
             "nimi": "",
             "leimaustapa": [],
             "sarja": props.kilpailu.sarjat[0].id,
-            "jasenet": []
+            "jasenet": ["","","","",""]
         };
         setState(tyhjaJoukkue);
 
@@ -191,7 +210,7 @@ const LisaaJoukkue = function(props) {
                 selectedSarja={state.sarja}
                 leimaustavat={leimaustavat}
                 checkedCheckboxes={state.leimaustapa} />
-            <Jasenet change={valitseHandle} />
+            <Jasenet items={state.jasenet} change={valitseHandle} />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
@@ -319,6 +338,10 @@ const SarjaLista = React.memo(function SarjaLista(props) {
 
 const Jasenet = React.memo(function Jasenet(props) {
 
+    // ei tarkista onko jo joku toinen saman niminen jäsen TODO
+    let muutaJasenta = function(event) {
+        props.change("jasenet", event.target);
+    };
 
     /* jshint ignore:start */
     let jasenKyselyt = [];
@@ -327,9 +350,10 @@ const Jasenet = React.memo(function Jasenet(props) {
         if (i <=2) {
             req = "required";
         }
+        let id = "jasen" + i;
         let rivi = (
             <label key={i}>Jäsen {i}
-                <input type="text" required={req} />
+                <input type="text" id={id} required={req} onChange={muutaJasenta}/>
             </label>
         )
         jasenKyselyt.push(rivi);
