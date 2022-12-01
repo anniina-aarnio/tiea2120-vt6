@@ -75,8 +75,11 @@ const LisaaJoukkue = function(props) {
      * @param {String} event 
      */
     let valitseHandle = function(kohta, event) {
-        if (kohta == "nimi" || kohta == "sarja") {
-            handleChange(kohta, event);
+        if (kohta == "nimi"){
+
+        }
+        else if (kohta == "sarja") {
+            handleChange(kohta, event.id);
         } else if (kohta == "leimaustapa") {
             handleLeimaustavat(kohta, event);
         } else if (kohta == "jasenet") {
@@ -91,12 +94,11 @@ const LisaaJoukkue = function(props) {
     };
 
     /**
-     * Tarkistaa
+     * Ylläpitää statessa tietoa checkatuista leimaustavoista
      * @param {String} kohta 
      * @param {Event.Target} eventTarget 
      */
     let handleLeimaustavat = function(kohta, eventTarget) {
-        console.log(kohta);
         let objekti = eventTarget;
         let type = objekti.type;
         let newstate = {...state};
@@ -160,7 +162,6 @@ const LisaaJoukkue = function(props) {
                 sarjat={props.kilpailu.sarjat}
                 selectedSarja={state.sarja}
                 leimaustavat={leimaustavat}
-                change2={handleLeimaustavat}
                 checkedCheckboxes={state.leimaustapa} />
             <Jasenet />
             <button onClick={handleLisaa}>Tallenna</button>
@@ -190,12 +191,8 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
         props.change("nimi", event.target.value);
     };
 
-    let muutaInputinSisaltoa = function(kohta, sisalto) {
-        props.change(kohta, sisalto);
-    };
-
-    let muutaInputinSisaltoa2 = function(kohta, event) {
-        props.change2(kohta, event);
+    let muutaInputinSisaltoa = function(kohta, event) {
+        props.change(kohta, event);
     };
 
     /* jshint ignore:start */
@@ -207,11 +204,11 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
             </label>
             <div className="leimaustavat-kokonaisuus">
                 <label>Leimaustavat</label>
-                <InputListaAAAAAA name="leimaustapa" change={muutaInputinSisaltoa2} items={leimaustavat} type="checkbox" checked={props.checkedCheckboxes}/>
+                <CheckboxLista name="leimaustapa" change={muutaInputinSisaltoa} items={leimaustavat} type="checkbox" checked={props.checkedCheckboxes}/>
             </div>
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
-                <InputLista name="sarja" change={muutaInputinSisaltoa} type="radio" items={sarjat} selected={props.selectedSarja} />
+                <SarjaLista name="sarja" change={muutaInputinSisaltoa} type="radio" items={sarjat} selected={props.selectedSarja} />
             </div>
 
         </fieldset>
@@ -219,34 +216,27 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
     /* jshint ignore:end */
 };
 
-
-/**
- * InputLista ei pidä omaa statea vaan palauttelee JoukkueenTiedot:lle
- */
-const InputLista = React.memo(function InputLista(props) {
+const SarjaLista = React.memo(function SarjaLista(props) {
     /* jshint ignore:start */
     let muutaSisaltoa = function (event) {
-        props.change(props.name, event.target.id);
+        props.change(props.name, event.target);
     }
 
     let listaus = [];
+    let i = 0;
     for (let item of props.items) {
-        let rivi;
-        if (item.selected || item.id == props.selected) {
-            rivi = (
-                <label className="nimi-inputilla" key={item.id}>
-                    {item.nimi}
-                    <input type={props.type} name={props.name} id={item.id} checked={item.selected} onChange={muutaSisaltoa} />
-                </label>
-            )
-        } else {
-            rivi = (
-                <label className="nimi-inputilla" key={item.id}>
-                    {item.nimi}
-                    <input type={props.type} name={props.name} id={item.id} onChange={muutaSisaltoa} />
-                </label>
-                )
-        }
+        let rivi = (
+            <label className="nimi-inputilla" key={item.id}>
+                {item.nimi}
+                <input
+                    type={props.type}
+                    name={props.name}
+                    onChange={muutaSisaltoa}
+                    checked={item.id == props.selected}
+                    id={item.id}
+                />
+            </label>
+        );
         listaus.push(rivi);
     }
 
@@ -263,7 +253,7 @@ const InputLista = React.memo(function InputLista(props) {
 /**
  * InputLista ei pidä omaa statea vaan palauttelee JoukkueenTiedot:lle
  */
- const InputListaAAAAAA = React.memo(function InputLista(props) {
+ const CheckboxLista = React.memo(function CheckboxLista(props) {
     /* jshint ignore:start */
     let muutaSisaltoa = function (event) {
         props.change(props.name, event.target);
