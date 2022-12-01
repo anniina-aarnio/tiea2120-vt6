@@ -135,6 +135,7 @@ const LisaaJoukkue = function(props) {
         // uusiJoukkue sisältöineen
         event.preventDefault();
 
+        // tarkistaa että kaikissa kentissä on jotakin
         let kentat = ["nimi", "leimaustapa", "sarja", "jasenet"];
         let virheita = 0;
         for (let kentta of kentat) {
@@ -146,15 +147,20 @@ const LisaaJoukkue = function(props) {
                 }
             }
         }
+
+        // varmistaa että validityt eivät herjaa
         if (!event.target.form.checkValidity() || virheita > 0) {
             event.target.form.reportValidity();
             return;
         }
 
-
+        // luo uuden joukkueen, johon lisätään tiedot oikeassa muodossa App:n tietoihin lisäämistä varten
         let uusiJoukkue = {...state};
+
+        // lisätään sarja oikeassa muodossa
         uusiJoukkue.sarja = etsiSarjaIdnPerusteella(uusiJoukkue.sarja, props.kilpailu.sarjat);
 
+        // lisätään leimauksien indeksit nimien sijaan
         let palautettavatLeimaukset = [];
         leimaustavat.map((item, index) => {
             if (uusiJoukkue.leimaustapa.includes(item)) {
@@ -163,6 +169,7 @@ const LisaaJoukkue = function(props) {
         });
         uusiJoukkue.leimaustapa = palautettavatLeimaukset;
 
+        // luodaan tyhjä joukkue, jolla tyhjennetään formi
         let tyhjaJoukkue = {
             "nimi": "",
             "leimaustapa": [],
@@ -170,6 +177,8 @@ const LisaaJoukkue = function(props) {
             "jasenet": []
         };
         setState(tyhjaJoukkue);
+
+        // lisätään joukkue App:n lisaaJoukkue-funktiolla
         props.lisaaJoukkue(uusiJoukkue);
     };
 
