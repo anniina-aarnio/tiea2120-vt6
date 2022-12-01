@@ -90,18 +90,31 @@ const LisaaJoukkue = function(props) {
         setState(uusistate);
     };
 
-    let handleLeimaustavat = function(kohta, event) {
+    /**
+     * Tarkistaa
+     * @param {String} kohta 
+     * @param {Event.Target} eventTarget 
+     */
+    let handleLeimaustavat = function(kohta, eventTarget) {
         console.log(kohta);
-        let objekti = event;
+        let objekti = eventTarget;
         let type = objekti.type;
         let newstate = {...state};
+
+        // käytännössä väkisinkin checkbox, mutta mahdollista yhdistelyä ajatellen...
         if (type == "checkbox") {
+
+            // luodaan uusi array nykyisistä checkatuista checkbokseista
             newstate[kohta] = Array.from(state[kohta]);
+
+            // jos nyt klikattiin checkatuksi, lisätään listaan
             if (objekti.checked) {
                 newstate[kohta].push(objekti.previousSibling.textContent);
+            
+            // muuten poistetaan listasta
+            } else {
+                newstate[kohta].splice(newstate[kohta].indexOf(objekti.previousSibling.textContent), 1);
             }
-        } else {
-            newstate[kohta].splice(newstate[kohta].indexOf(objekti.previousSibling.textContent), 1);
         }
         setState(newstate);
     };
