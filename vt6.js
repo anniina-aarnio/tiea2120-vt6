@@ -75,6 +75,7 @@ const LisaaJoukkue = function(props) {
      * @param {Event.Target} event 
      */
     let valitseHandle = function(kohta, event) {
+        console.log(event);
         if (kohta == "nimi"){
             handleChange(kohta, event.value);
         }
@@ -133,6 +134,15 @@ const LisaaJoukkue = function(props) {
     let handleLisaa = function(event) {
         // uusiJoukkue sisältöineen
         event.preventDefault();
+
+        console.log(event.target.form.checkValidity());
+        let kentat = ["nimi", "leimaustapa", "sarja", "jasenet"];
+        if (!event.target.form.checkValidity()) {
+            event.target.form.reportValidity();
+            return;
+        }
+
+
         let uusiJoukkue = {...state};
         uusiJoukkue.sarja = etsiSarjaIdnPerusteella(uusiJoukkue.sarja, props.kilpailu.sarjat);
 
