@@ -135,9 +135,18 @@ const LisaaJoukkue = function(props) {
         // uusiJoukkue sisältöineen
         event.preventDefault();
 
-        console.log(event.target.form.checkValidity());
         let kentat = ["nimi", "leimaustapa", "sarja", "jasenet"];
-        if (!event.target.form.checkValidity()) {
+        let virheita = 0;
+        for (let kentta of kentat) {
+            if (state[kentta] == "" || state[kentta].length == 0) {
+                virheita +=1;
+                if (kentta == "sarja") {
+                    // pitäisikö tehdä sarjoihin validitycheck..?
+                    console.log("pitää olla valittuna vähintään yksi sarja");
+                }
+            }
+        }
+        if (!event.target.form.checkValidity() || virheita > 0) {
             event.target.form.reportValidity();
             return;
         }
