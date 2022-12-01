@@ -43,7 +43,7 @@ const App = function(props) {
 };
 
 
-/** TODO: validityt ja jäsenet
+/** TODO: validityt, jäsenet, lisäyksen jälkeen formin tyhjennys
  * Propseissa:
  * .lisaaJoukkue (funktio, jolla joukkue lisätään Appin stateen)
  * .kilpailu (Appin statesta sen hetkinen kilpailu ~= data)
@@ -70,26 +70,23 @@ const LisaaJoukkue = function(props) {
     /**
      * Jos joukkueen tiedoissa tai jäsenissä tulee muutosta
      * kutsutaan tätä (kertomalla mitä kohtaa muutetaan)
-     * Jos kyseessä on nimi tai sarja,
-     * tämä funktio hoitaa sen itse
-     * Jos täytyy kajota listoihin, kutsutaan muokkaaListaChange 
-     * samoilla parametreilla
-     * @param {String} kohta 
+     * Nimi ja sarja muutetaan suoraan, koska niillä yksikäsitteinen arvo
+     * Leimaustapalista muutetaan erillisellä listaan perehtyneellä changella
+     * Jäsenet muutetaan toisella listaan perehtyneellä changella
+     * @param {String} kohta "nimi", "sarja", "leimaustapa" tai "jasenet"
      * @param {String} sisalto 
      */
-    let handleChange = function(kohta, sisalto) {
+    let valitseHandle = function(kohta, sisalto) {
         if (kohta == "nimi" || kohta == "sarja") {
-            let uusistate = {...state};
-            uusistate[kohta] = sisalto;
-            setState(uusistate);
+            handleChange(kohta, sisalto);
         } else if (kohta == "leimaustapa") {
-             muokkaaCheckboxChange(kohta, sisalto);
+            muokkaaCheckboxChange(kohta, sisalto);
         } else if (kohta == "jasenet") {
 
         }
     };
 
-    let handleChange1 = function(kohta, sisalto) {
+    let handleChange = function(kohta, sisalto) {
         let uusistate = {...state};
         uusistate[kohta] = sisalto;
         setState(uusistate);
@@ -113,7 +110,7 @@ const LisaaJoukkue = function(props) {
             }
         }
 
-        handleChange1(kohta, items);
+        handleChange(kohta, items);
     };
 
     /**
@@ -151,7 +148,7 @@ const LisaaJoukkue = function(props) {
     return (
         <form>
             <JoukkueenTiedot
-                change={handleChange}
+                change={valitseHandle}
                 leimaustavat={leimaustavat}
                 selectedLeimaustavat={state.leimaustapa}
                 sarjat={props.kilpailu.sarjat}
@@ -176,6 +173,12 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
     leimaustavat.sort(aakkosjarjestysNimenMukaan);
 
     let muutaNimea = function(event) {
+        let validity = event.target.validity;
+        if (validity.badInput || validity.patternMismatch || validity.rangeOverflow || validity.rangeUnderflow || validity.tooLong || validity.tooShort || validity.typeMismatch || validity.valueMissing || !event.target.value.trim()) {
+            event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti)");
+        } else {
+            event.target.setCustomValidity("");
+        }
         props.change("nimi", event.target.value);
     };
 
@@ -188,7 +191,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
         <fieldset>
             <legend>Joukkueen tiedot</legend>
             <label>Nimi
-                <input type="text" onChange={muutaNimea}></input>
+                <input type="text" required="required" onChange={muutaNimea} />
             </label>
             <div className="leimaustavat-kokonaisuus">
                 <label>Leimaustavat</label>

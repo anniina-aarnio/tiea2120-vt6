@@ -1,5 +1,5 @@
 body {
-    background-color: white;
+    background-color: grey;
     color: black;
 }
  
@@ -40,4 +40,10 @@ span {
    display: block;
    padding: .1em;
    margin: 0 10em 0 0;
+}
+
+input:invalid {
+   border: 1px solid red;
+   border-radius: 3px;
+   padding: 2px;
 }
