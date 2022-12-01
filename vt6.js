@@ -72,11 +72,11 @@ const LisaaJoukkue = function(props) {
      * Leimaustapalista muutetaan erillisellä listaan perehtyneellä changella
      * Jäsenet muutetaan toisella listaan perehtyneellä changella
      * @param {String} kohta "nimi", "sarja", "leimaustapa" tai "jasenet"
-     * @param {String} event 
+     * @param {Event.Target} event 
      */
     let valitseHandle = function(kohta, event) {
         if (kohta == "nimi"){
-
+            handleChange(kohta, event.value);
         }
         else if (kohta == "sarja") {
             handleChange(kohta, event.id);
@@ -159,6 +159,7 @@ const LisaaJoukkue = function(props) {
         <form>
             <JoukkueenTiedot
                 change={valitseHandle}
+                nimi={state.nimi}
                 sarjat={props.kilpailu.sarjat}
                 selectedSarja={state.sarja}
                 leimaustavat={leimaustavat}
@@ -188,7 +189,7 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
         } else {
             event.target.setCustomValidity("");
         }
-        props.change("nimi", event.target.value);
+        props.change("nimi", event.target);
     };
 
     let muutaInputinSisaltoa = function(kohta, event) {
@@ -200,7 +201,7 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
         <fieldset>
             <legend>Joukkueen tiedot</legend>
             <label>Nimi
-                <input type="text" required="required" onChange={muutaNimea} />
+                <input type="text" value={props.nimi} required="required" onChange={muutaNimea} />
             </label>
             <div className="leimaustavat-kokonaisuus">
                 <label>Leimaustavat</label>
