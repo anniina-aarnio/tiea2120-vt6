@@ -320,9 +320,13 @@ const Jasenet = React.memo(function Jasenet(props) {
 
     let jasenKyselyt = [];
     for (let i = 1; i <= 5; i++) {
+        let req = "";
+        if (i <=2) {
+            req = "required";
+        }
         let rivi = (
             <label key={i}>Jäsen {i}
-                <input type="text" />
+                <input type="text" required={req} />
             </label>
         )
         jasenKyselyt.push(rivi);
