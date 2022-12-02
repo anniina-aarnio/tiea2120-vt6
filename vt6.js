@@ -44,7 +44,6 @@ const App = function(props) {
         uusistate.kilpailu = uusidata;
         setState(uusistate);
 
-        console.log(uusistate);
         console.log("App sanoo: ", lisattyJoukkue, state.kilpailu);
     };
 
@@ -162,25 +161,20 @@ const LisaaJoukkue = React.memo(function(props) {
         // otetaan käsitellyn jäsenen indeksi ylös
         let index = parseInt((eventTarget.id).replace(/[^0-9]/g, '')) - 1;
         let uudetJasenet = Array.from(state.jasenet);
-        console.log(uudetJasenet);
+
+        let nimi = eventTarget.value;
 
         // tarkistetaan onko sillä indeksillä jo sisältöä
         // jos on: muutetaan sitä
         // jos ei ole: luodaan uusi
-
-        // kun tämä tehty, tarkistetaan tilanne:
-        // onko jokin jäsenlistan kohdista tyhjä?
-
-
-        let nimi = eventTarget.value;
-        // tarkistetaan onko jo sillä indeksillä sisältöä
         if (uudetJasenet[index] == "" || uudetJasenet[index]) {
             uudetJasenet[index] = nimi;
         } else {
             uudetJasenet.push(nimi);
         }
 
-
+        // kun tämä tehty, tarkistetaan tilanne:
+        // onko jokin jäsenlistan kohdista tyhjä?
         if (nimi == "") {
             uudetJasenet.splice(index, 1);
         }
@@ -189,10 +183,11 @@ const LisaaJoukkue = React.memo(function(props) {
         // tarkistaa onko eka/alin jäsenkyselyn riveistä tyhjä ja lisää tyhjän
         let ekaTaiVikaOnTyhja = (uudetJasenet[jasenluku - 1] == "" || uudetJasenet[0] == "");
 
+        // lisätään loppuun tyhjä, jos sellaista ei ole ja jos max jäsenkyselyluku ei ole vielä täynnä
+        // samoin jos jasenkyselyluku-minimin ali on menty, lisätään
         if (!ekaTaiVikaOnTyhja && jasenluku < props.jasenkyselyluku.max || jasenluku < props.jasenkyselyluku.min) {
             uudetJasenet.push("");
         }
-        console.log(uudetJasenet);
 
         handleChange(kohta, uudetJasenet);
     };
@@ -425,11 +420,15 @@ const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
 
     // funktio jäsenen muuttamista varten
     let muutaJasenta = function(event) {
+/*      // nämä eivät olleet tehtävän kannalta pakollisia, joten pois käytöstä
+        // aiheutti virheen tilanteessa, kun kirjoitti kaksi samaa nimeä ja
+        // poisti ensimmäisen niin jälkimmäiset siirtyivät yhden ylöspäin
+        // ja validity jäi alimpaan ruutuun voimaan
         if (event.target.value != "" && jasenetPienella.includes(event.target.value.trim().toLowerCase())) {
             event.target.setCustomValidity("Jokaisen jäsenen nimen tulee olla uniikki");
         } else {
             event.target.setCustomValidity("");
-        }
+        } */
         props.change("jasenet", event.target);
     };
 
