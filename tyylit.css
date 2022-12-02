@@ -2,14 +2,24 @@ body {
     background-color: white;
     color: black;
 }
- 
-/* Fieldsetin ulkoasu */
-fieldset {
-    max-width: 40em;
-    clear: both;
+
+#root > div {
+   width: 100%;
 }
- 
- /* Formin sisällä label + input ulkoasu */
+
+
+
+/* Formin ulkoasu */
+form {
+   display: block;
+   width: 60%;
+   float: left;
+}
+
+fieldset {
+   padding-right: 10%;
+}
+/* Formin sisällä label + input ulkoasu */
 
 fieldset > label {
    display: block;
@@ -21,7 +31,6 @@ fieldset > label {
 input[type="text"] {
    float: right;
    width: 60%;
-   margin-right: 10em;
 }
  
 .sarjat-kokonaisuus, .leimaustavat-kokonaisuus {
@@ -39,7 +48,6 @@ span {
    text-align: right;
    display: block;
    padding: .1em;
-   margin: 0 10em 0 0;
 }
 
 /* invalidin inputin ulkomuoto */
@@ -51,10 +59,11 @@ input:invalid {
 
 /* taulukon ulkomuoto */
 table {
-   border: .3em black outset;
+   border: .3em grey outset;
    font-family: Verdana, Arial, sans-serif;
    border-spacing: .4em;
-
+   float: left;
+   clear:none;
 }
 
 thead {
