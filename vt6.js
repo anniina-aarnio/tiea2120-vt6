@@ -153,11 +153,24 @@ const LisaaJoukkue = React.memo(function(props) {
         setState(newstate);
     };
 
+    /**
+     * ei poista tyhjää riviä alusta...
+     * @param {String} kohta 
+     * @param {Object} eventTarget 
+     */
     let handleJasenlista = function(kohta, eventTarget) {
         // otetaan käsitellyn jäsenen indeksi ylös
         let index = parseInt((eventTarget.id).replace(/[^0-9]/g, '')) - 1;
         let uudetJasenet = Array.from(state.jasenet);
         console.log(uudetJasenet);
+
+        // tarkistetaan onko sillä indeksillä jo sisältöä
+        // jos on: muutetaan sitä
+        // jos ei ole: luodaan uusi
+
+        // kun tämä tehty, tarkistetaan tilanne:
+        // onko jokin jäsenlistan kohdista tyhjä?
+
 
         let nimi = eventTarget.value;
         // tarkistetaan onko jo sillä indeksillä sisältöä
@@ -167,17 +180,19 @@ const LisaaJoukkue = React.memo(function(props) {
             uudetJasenet.push(nimi);
         }
 
-        let jasenluku = uudetJasenet.length;
-        if (nimi == "" && jasenluku > props.jasenkyselyluku.min) {
+
+        if (nimi == "") {
             uudetJasenet.splice(index, 1);
         }
+        let jasenluku = uudetJasenet.length;
 
-        // tarkistaa onko alin jäsenkyselyn riveistä tyhjä ja lisää tyhjän
-        let viimeinenOnTyhja = (uudetJasenet[jasenluku - 1] == "");
+        // tarkistaa onko eka/alin jäsenkyselyn riveistä tyhjä ja lisää tyhjän
+        let ekaTaiVikaOnTyhja = (uudetJasenet[jasenluku - 1] == "" || uudetJasenet[0] == "");
 
-        if (!viimeinenOnTyhja && jasenluku < props.jasenkyselyluku.max) {
+        if (!ekaTaiVikaOnTyhja && jasenluku < props.jasenkyselyluku.max || jasenluku < props.jasenkyselyluku.min) {
             uudetJasenet.push("");
         }
+        console.log(uudetJasenet);
 
         handleChange(kohta, uudetJasenet);
     };
@@ -260,7 +275,8 @@ const LisaaJoukkue = React.memo(function(props) {
                 checkedCheckboxes={state.leimaustapa}/>
             <DynaamisetJasenet
                 jasenet={state.jasenet}
-                change={valitseHandle}/>
+                change={valitseHandle}
+                minJasenmaara={props.jasenkyselyluku.min} />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
 });
@@ -359,9 +375,6 @@ const SarjaLista = React.memo(function SarjaLista(props) {
     /* jshint ignore:end */
 });
 
-/**
- * InputLista ei pidä omaa statea vaan palauttelee JoukkueenTiedot:lle
- */
  const CheckboxLista = React.memo(function CheckboxLista(props) {
 
     let muutaSisaltoa = function (event) {
@@ -403,6 +416,7 @@ const SarjaLista = React.memo(function SarjaLista(props) {
  * Propseissa tuo:
  * .jasenet (lista jäsenistä)
  * .change (funktio, joka muokkaa LisaaJoukkueen statea)
+ * .minJasenmaara (vähimmäismäärä required jäsenistä)
  */
 const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
 
@@ -425,7 +439,7 @@ const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
     let jasenKyselyt = [];
     for (let i = 1; i <= jasenetPienella.length; i++) {
         let req = "";
-        if (i <=2) {
+        if (i <= props.minJasenmaara) {
             req = "required";
         }
         let id = "jasen" + i;
