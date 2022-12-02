@@ -12,7 +12,7 @@ body {
 /* Formin ulkoasu */
 form {
    display: block;
-   width: 60%;
+   width: 50%;
    float: left;
 }
 
@@ -54,7 +54,7 @@ span {
 input:invalid {
    border: 1px solid red;
    border-radius: 3px;
-   padding: 2px;
+   padding: .1em;
 }
 
 /* taulukon ulkomuoto */
@@ -82,7 +82,7 @@ tbody > tr {
 th {
    border: .1em black outset;
    font-weight: normal;
-   padding: .5em;
+   padding: .2em;
 }
 
 .leimaustapalista {

@@ -238,7 +238,6 @@ const LisaaJoukkue = React.memo(function(props) {
             // tee validityhomma ?? TODO - muualla ei toiminut oikein jos poisti välistä inputteja...
             /* luoCustomValiditytJaseniin(); */
         }
-        console.log(virheita);
 
         // varmistaa että validityt eivät herjaa
         if (!event.target.form.checkValidity() || virheita > 0) {
@@ -541,6 +540,7 @@ const ListaaJoukkueet = React.memo(function(props) {
                 <tr>
                     <th>Sarja</th>
                     <th>Joukkue</th>
+                    <th>Jäsenet</th>
                 </tr>
             </thead>
             <tbody>
