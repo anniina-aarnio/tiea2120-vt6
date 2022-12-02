@@ -32,9 +32,16 @@ const App = function(props) {
         lisattyJoukkue.rastileimaukset = [];
 
         // päivittää staten lisäämällä uuden joukkueen
-        // ^ pitää luultavasti päivittää vain state.kilpailu.joukkueet
-        // ^ tee oma funktio kopioi_kilpailu_shallow_paitsi_joukkueet...?
-        console.log("App sanoo: ", lisattyJoukkue);
+        let uusistate = {...state};
+        let uusidata = {...uusistate.kilpailu};
+        let uusiJoukkueListaus = Array.from(uusidata.joukkueet);
+        uusiJoukkueListaus.push(lisattyJoukkue);
+        uusidata.joukkueet = uusiJoukkueListaus;
+        uusistate.kilpailu = uusidata;
+        setState(uusistate);
+
+        console.log(uusistate);
+        console.log("App sanoo: ", lisattyJoukkue, state.kilpailu);
     };
 
     /* jshint ignore:start */
