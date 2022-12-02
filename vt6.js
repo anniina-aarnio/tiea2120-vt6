@@ -226,7 +226,9 @@ const LisaaJoukkue = React.memo(function(props) {
                 selectedSarja={state.sarja}
                 leimaustavat={leimaustavat}
                 checkedCheckboxes={state.leimaustapa} />
-            <Jasenet items={state.jasenet} change={valitseHandle} />
+            <Jasenet
+                items={state.jasenet}
+                change={valitseHandle} />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
@@ -383,7 +385,7 @@ const Jasenet = React.memo(function Jasenet(props) {
         let id = "jasen" + i;
         let rivi = (
             <label key={i}>Jäsen {i}
-                <input type="text" id={id} required={req} onChange={muutaJasenta}/>
+                <input type="text" id={id} value={props.items[i-1]} required={req} onChange={muutaJasenta}/>
             </label>
         )
         jasenKyselyt.push(rivi);
