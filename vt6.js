@@ -12,6 +12,7 @@ const App = function(props) {
     // huom. kaikissa tilanteissa ei kannata kopioida koko dataa
     const [state, setState] = React.useState({"kilpailu": kopioi_kilpailu(data) });
     console.log( state.kilpailu );
+    let uusiJoukkueID = etsiIsoinID(Array.from(state.kilpailu.joukkueet));
 
     /**
      * Lisää joukkueen App:n stateen
@@ -25,7 +26,11 @@ const App = function(props) {
      * @param {Object} lisattyJoukkue 
      */
     let lisaaJoukkue = function(lisattyJoukkue) {
-        // lisättyJoukkue lisätään uniikki id ja tyhjä rastileimaus[]
+        // lisättyJoukkue lisätään uniikki id ja tyhjä rastileimaukset[]
+        lisattyJoukkue.id = uusiJoukkueID;
+        uusiJoukkueID += 1;
+        lisattyJoukkue.rastileimaukset = [];
+
         // päivittää staten lisäämällä uuden joukkueen
         // ^ pitää luultavasti päivittää vain state.kilpailu.joukkueet
         // ^ tee oma funktio kopioi_kilpailu_shallow_paitsi_joukkueet...?
@@ -474,4 +479,22 @@ function etsiSarjaIdnPerusteella(id, sarjat) {
             return sarja;
         }
     }
+}
+
+
+/**
+ * Etsii listan alkio.id seasta suurimman luvun ja lisää siihen yhden
+ * Palauttaa etsityn luvun
+ * @param {Array} lista 
+ * @returns {Number} kokonaisluku, joka on isompi kuin listan yksikään id
+ */
+function etsiIsoinID(lista) {
+    let uusiID = lista[0].id;
+    for (let joukkue of lista) {
+        if (joukkue.id > uusiID) {
+            uusiID = joukkue.id;
+        }
+    }
+    uusiID += 1;
+    return uusiID;
 }
