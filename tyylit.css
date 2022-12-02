@@ -73,3 +73,20 @@ th {
    padding: .5em;
 }
 
+th ul {
+   padding: 0;
+   margin: 0;
+   font-size: smaller;
+}
+
+th li {
+   display: inline;
+}
+
+th li:after {
+   content: ", ";
+}
+
+th li:last-child::after {
+   content: "";
+}

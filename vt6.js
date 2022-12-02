@@ -51,7 +51,8 @@ const App = function(props) {
                 lisaaJoukkue={lisaaJoukkue}
                 kilpailu={state.kilpailu}/>
             <ListaaJoukkueet 
-                joukkueet={state.kilpailu.joukkueet}/>
+                joukkueet={state.kilpailu.joukkueet}
+                leimaustavat={state.kilpailu.leimaustavat} />
         </div>
     );
     /* jshint ignore:end */
@@ -404,6 +405,7 @@ const Jasenet = React.memo(function Jasenet(props) {
  * Joukkueen yhteydessä listataan myös joukkueen käyttämät leimaustavat aakkosjärjestyksessä
  * Propseissa tulee tiedot:
  * .joukkueet (lista joukkue-objekteista, joista haetaan tiedot)
+ * .leimaustavat (lista leimaustavoista, joiden indeksit löytyvät joukkueista)
  */
 const ListaaJoukkueet = React.memo(function(props) {
     let joukkueetJarjestyksessa = Array.from(props.joukkueet).sort(aakkostaSarjanJaNimenMukaan);
@@ -411,10 +413,26 @@ const ListaaJoukkueet = React.memo(function(props) {
 
     let rivit = [];
     for (let joukkue of joukkueetJarjestyksessa) {
+        let leimaustapalista = [];
+        for (let lt of joukkue.leimaustapa) {
+            leimaustapalista.push(
+                <li key={lt}>{props.leimaustavat[lt]}</li>);
+        }
+        leimaustapalista.sort();
+
         let rivi = (
             <tr key={joukkue.id}>
                 <th>{joukkue.sarja.nimi}</th>
-                <th>{joukkue.nimi}</th>
+                <th>
+                    <div>
+                        {joukkue.nimi}
+                    </div>
+                    <div>
+                        <ul>
+                            {leimaustapalista}
+                        </ul>
+                    </div>
+                </th>
             </tr>
         )
         rivit.push(rivi);
