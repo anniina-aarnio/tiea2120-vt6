@@ -408,6 +408,12 @@ const ListaaJoukkueet = function(props) {
                     <th>Joukkue</th>
                 </tr>
             </thead>
+            <tbody>
+                <tr>
+                    <th>Eka sarja</th>
+                    <th>Eka joukkue</th>
+                </tr>
+            </tbody>
         </table>);
     /* jshint ignore:end */
 };

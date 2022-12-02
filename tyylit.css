@@ -52,17 +52,24 @@ input:invalid {
 /* taulukon ulkomuoto */
 table {
    border: .3em black outset;
+   font-family: Verdana, Arial, sans-serif;
+   border-spacing: .4em;
+
 }
 
 thead {
    background-color: #ffc653;
+
 }
 
 thead th {
-   padding: .6em;
+
+   font-weight: bold;
 }
 
 th {
    border: .1em black outset;
+   font-weight: normal;
+   padding: .5em;
 }
 
