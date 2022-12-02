@@ -372,6 +372,11 @@ const SarjaLista = React.memo(function SarjaLista(props) {
 
  const CheckboxLista = React.memo(function CheckboxLista(props) {
 
+    let req = "";
+    if (props.checked.length == 0) {
+        req = "required";
+    };
+
     let muutaSisaltoa = function (event) {
         props.change(props.name, event.target);
     };
@@ -388,6 +393,7 @@ const SarjaLista = React.memo(function SarjaLista(props) {
                     name={props.name}
                     onChange={muutaSisaltoa}
                     checked={props.checked.includes(item)}
+                    required={req}
                 />
             </label>
         );
