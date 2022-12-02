@@ -234,6 +234,7 @@ const LisaaJoukkue = React.memo(function(props) {
             <Jasenet
                 jasenet={state.jasenet}
                 change={valitseHandle} />
+            <DynaamisetJasenet />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
@@ -392,6 +393,33 @@ const Jasenet = React.memo(function Jasenet(props) {
         props.change("jasenet", event.target);
     };
 
+    /* jshint ignore:start */
+    let jasenKyselyt = [];
+    for (let i = 1; i <= 5; i++) {
+        let req = "";
+        if (i <=2) {
+            req = "required";
+        }
+        let id = "jasen" + i;
+        let rivi = (
+            <label key={i}>Jäsen {i}
+                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={muutaJasenta}/>
+            </label>
+        )
+        jasenKyselyt.push(rivi);
+    }
+
+    return (
+    <fieldset>
+        <legend>Jäsenet</legend>
+        {jasenKyselyt}
+    </fieldset>
+        
+    );
+    /* jshint ignore:end */
+});
+
+const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
     /* jshint ignore:start */
     let jasenKyselyt = [];
     for (let i = 1; i <= 5; i++) {

@@ -72,8 +72,11 @@ thead {
 }
 
 thead th {
-
    font-weight: bold;
+}
+
+tbody > tr {
+   text-align: left;
 }
 
 th {
