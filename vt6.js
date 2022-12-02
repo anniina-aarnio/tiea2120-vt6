@@ -156,7 +156,14 @@ const LisaaJoukkue = React.memo(function(props) {
         // otetaan käsitellyn jäsenen indeksi ylös
         let index = parseInt((eventTarget.id).replace(/[^0-9]/g, '')) - 1;
         let uudetJasenet = Array.from(state.jasenet);
-        uudetJasenet[index] = eventTarget.value;
+        console.log(uudetJasenet);
+        // tarkistetaan onko jo sillä indeksillä sisältöä
+        if (uudetJasenet[index] == "" || uudetJasenet[index]) {
+            uudetJasenet[index] = eventTarget.value;
+        } else {
+            uudetJasenet.push(eventTarget.value);
+        }
+
         handleChange(kohta, uudetJasenet);
     };
 
@@ -242,10 +249,6 @@ const LisaaJoukkue = React.memo(function(props) {
                 jasenkyselyluku={props.jasenkyselyluku}/>
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
-    /* jshint ignore:end */
-    /*             <Jasenet
-                jasenet={state.jasenet}
-                change={valitseHandle} /> */
 });
 
 
@@ -260,7 +263,7 @@ const LisaaJoukkue = React.memo(function(props) {
  * .leimaustavat (lista leimaustavoista)
  * .checkedCheckboxes (bindattu lista tsekatuista leimaustavoista)
  */
-const JoukkueenTiedot = function JoukkueenTiedot(props) {
+const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 
     let sarjat = Array.from(props.sarjat);
     sarjat.sort(aakkosjarjestysNimenMukaan);
@@ -305,7 +308,7 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
         </fieldset>
     )
     /* jshint ignore:end */
-};
+});
 
 const SarjaLista = React.memo(function SarjaLista(props) {
 
@@ -384,58 +387,13 @@ const SarjaLista = React.memo(function SarjaLista(props) {
  * JoukkueenTiedot pitää omaa statea, jossa on:
  * - jaseninputtien tiedot
  * Propseissa tuo:
- * .items (lista jäsenistä)
- * .change (funktio, joka muokkaa LisaaJoukkueen statea)
- */
-const Jasenet = React.memo(function Jasenet(props) {
-
-    let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
-
-    // ei tarkista onko jo joku toinen saman niminen jäsen TODO
-    let muutaJasenta = function(event) {
-        if (event.target.value != "" && jasenetPienella.includes(event.target.value.trim().toLowerCase())) {
-            event.target.setCustomValidity("Jokaisen jäsenen nimen tulee olla uniikki");
-        } else {
-            event.target.setCustomValidity("");
-        }
-        props.change("jasenet", event.target);
-    };
-
-    /* jshint ignore:start */
-    let jasenKyselyt = [];
-    for (let i = 1; i <= 5; i++) {
-        let req = "";
-        if (i <=2) {
-            req = "required";
-        }
-        let id = "jasen" + i;
-        let rivi = (
-            <label key={i}>Jäsen {i}
-                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={muutaJasenta}/>
-            </label>
-        )
-        jasenKyselyt.push(rivi);
-    }
-
-    return (
-    <fieldset>
-        <legend>Jäsenet</legend>
-        {jasenKyselyt}
-    </fieldset>
-        
-    );
-    /* jshint ignore:end */
-});
-
-/**
- * JoukkueenTiedot pitää omaa statea, jossa on:
- * - jaseninputtien tiedot
- * Propseissa tuo:
- * .items (lista jäsenistä)
+ * .jasenet (lista jäsenistä)
  * .change (funktio, joka muokkaa LisaaJoukkueen statea)
  * .jasenkyselyluku (määrä, montako jäsenkyselyriviä alussa/vähintään on)
  */
 const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
+    let viimeinenOnTyhja = (props.jasenet[props.jasenet.length -1] == "");
+    console.log(viimeinenOnTyhja);
 
     let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
 
@@ -447,9 +405,15 @@ const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
         }
         props.change("jasenet", event.target);
     };
+
+    let riveja = Math.max(props.jasenkyselyluku, jasenetPienella.length);
+    if (!viimeinenOnTyhja) {
+        riveja += 1;
+    }
     /* jshint ignore:start */
+    // luo dynaamisesti oikean määrän jäsenkyselyrivejä
     let jasenKyselyt = [];
-    for (let i = 1; i <= props.jasenkyselyluku; i++) {
+    for (let i = 1; i <= riveja; i++) {
         let req = "";
         if (i <=2) {
             req = "required";
@@ -462,6 +426,7 @@ const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
         )
         jasenKyselyt.push(rivi);
     }
+
 
     return (
     <fieldset>
