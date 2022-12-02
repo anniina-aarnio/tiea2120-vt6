@@ -514,8 +514,19 @@ const ListaaJoukkueet = React.memo(function(props) {
             leimaustapalista.push(
                 <li key={lt}>{props.leimaustavat[lt]}</li>);
         }
-        leimaustapalista.sort();
+        leimaustapalista.sort(); // nämä annetaan propsina JoukkueRiville
 
+        // TODO
+        // nykyiseen nähden yksittäisen joukkueen tiedoista oma komponentti
+        // jäsenlistauksesta myös oma komponenttinsa
+        // lisää joukkueen nimestä linkki, jota klikatessa kyseisen joukkueen tiedot ilmestyvät lomakkeelle muokattaviksi
+        // tietoja muuttaessa on käytössä samat rajoitteet kuin uutta joukkuetta lisättäessä
+        // muutettujen tietojen tallentamisen jälkeen joukkuelistaus päivittyy vastaamaan muutettuja tietoja
+
+        let rivi = (
+            <JoukkueRivi joukkue={joukkue} url="#" leimaustapalista={leimaustapalista}/>
+        );
+/*         
         let rivi = (
             <tr key={joukkue.id}>
                 <th>{joukkue.sarja.nimi}</th>
@@ -530,7 +541,7 @@ const ListaaJoukkueet = React.memo(function(props) {
                     </div>
                 </th>
             </tr>
-        )
+        ) */
         rivit.push(rivi);
     }
 
@@ -546,6 +557,50 @@ const ListaaJoukkueet = React.memo(function(props) {
                 {rivit}
             </tbody>
         </table>);
+    /* jshint ignore:end */
+});
+
+
+const JoukkueRivi = React.memo(function JoukkueRivi(props) {
+    let joukkue = props.joukkue;
+
+    /* jshint ignore:start */
+    return (
+        <tr key={joukkue.id}>
+            <th>
+                {joukkue.sarja.nimi}
+            </th>
+            <th>
+                <div>
+                    <a href={props.url}>{joukkue.nimi}</a>
+                </div>
+                <div>
+                    <ul className="leimaustapalista">
+                        {props.leimaustapalista}
+                    </ul>
+                </div>
+            </th>
+            <th>
+                <JasenListaus jasenet={joukkue.jasenet}/>
+            </th>
+        </tr>
+    )
+    /* jshint ignore:end */
+});
+
+
+const JasenListaus = React.memo(function JasenListaus(props) {
+    /* jshint ignore:start */
+    let jasenet = Array.from(props.jasenet);
+    jasenet.sort();
+
+    return (
+        <ul className="jasenlista">
+            {jasenet.map((item, index) => {
+                return <li key={index}>{item}</li>
+            })}
+        </ul>
+    )
     /* jshint ignore:end */
 });
 

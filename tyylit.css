@@ -85,20 +85,24 @@ th {
    padding: .5em;
 }
 
-th ul {
+.leimaustapalista {
    padding: 0;
    margin: 0;
    font-size: smaller;
 }
 
-th li {
+.leimaustapalista > li {
    display: inline;
 }
 
-th li:after {
+.leimaustapalista li:after {
    content: ", ";
 }
 
-th li:last-child::after {
+.leimaustapalista li:last-child::after {
    content: "";
+}
+
+.jasenlista {
+   list-style-type: circle;
 }
