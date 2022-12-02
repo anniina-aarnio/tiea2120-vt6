@@ -55,7 +55,7 @@ const App = function(props) {
 };
 
 
-/** TODO: validityt, jäsenet, lisäyksen jälkeen formin tyhjennys
+/**
  * Propseissa:
  * .lisaaJoukkue (funktio, jolla joukkue lisätään Appin stateen)
  * .kilpailu (Appin statesta sen hetkinen kilpailu ~= data)
@@ -232,6 +232,13 @@ const LisaaJoukkue = function(props) {
 /**
  * JoukkueenTiedot pitää omaa statea, jossa on:
  * - inputtien tiedot (nimi, mitkä leimaustavat, sarjat)
+ * Propseissa:
+ * .change (funktio, joka muokkaa LisaaJoukkueen statea)
+ * .nimi (LisaaJoukkue bindattu nimi inputtiin)
+ * .sarjat (lista sarjoista)
+ * .selectedSarja (LisaaJoukkue bindattu sarja input-joukkoon)
+ * .leimaustavat (lista leimaustavoista)
+ * .checkedCheckboxes (bindattu lista tsekatuista leimaustavoista)
  */
 const JoukkueenTiedot = function JoukkueenTiedot(props) {
 
