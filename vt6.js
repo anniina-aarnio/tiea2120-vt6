@@ -157,11 +157,24 @@ const LisaaJoukkue = React.memo(function(props) {
         let index = parseInt((eventTarget.id).replace(/[^0-9]/g, '')) - 1;
         let uudetJasenet = Array.from(state.jasenet);
         console.log(uudetJasenet);
+
+        let nimi = eventTarget.value;
         // tarkistetaan onko jo sillä indeksillä sisältöä
         if (uudetJasenet[index] == "" || uudetJasenet[index]) {
-            uudetJasenet[index] = eventTarget.value;
+            uudetJasenet[index] = nimi;
         } else {
-            uudetJasenet.push(eventTarget.value);
+            uudetJasenet.push(nimi);
+        }
+
+        if (nimi == "" && uudetJasenet.length > props.jasenkyselyluku) {
+            uudetJasenet.splice(index, 1);
+        }
+
+        // tarkistaa onko alin jäsenkyselyn riveistä tyhjä ja lisää tyhjän
+        let viimeinenOnTyhja = (uudetJasenet[uudetJasenet.length - 1] == "");
+
+        if (!viimeinenOnTyhja) {
+            uudetJasenet.push("");
         }
 
         handleChange(kohta, uudetJasenet);
@@ -392,11 +405,11 @@ const SarjaLista = React.memo(function SarjaLista(props) {
  * .jasenkyselyluku (määrä, montako jäsenkyselyriviä alussa/vähintään on)
  */
 const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
-    let viimeinenOnTyhja = (props.jasenet[props.jasenet.length -1] == "");
-    console.log(viimeinenOnTyhja);
 
+    // tarkistuksia varten jäsenet pienellä lista
     let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
 
+    // funktio jäsenen muuttamista varten
     let muutaJasenta = function(event) {
         if (event.target.value != "" && jasenetPienella.includes(event.target.value.trim().toLowerCase())) {
             event.target.setCustomValidity("Jokaisen jäsenen nimen tulee olla uniikki");
@@ -406,14 +419,11 @@ const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
         props.change("jasenet", event.target);
     };
 
-    let riveja = Math.max(props.jasenkyselyluku, jasenetPienella.length);
-    if (!viimeinenOnTyhja) {
-        riveja += 1;
-    }
+
     /* jshint ignore:start */
     // luo dynaamisesti oikean määrän jäsenkyselyrivejä
     let jasenKyselyt = [];
-    for (let i = 1; i <= riveja; i++) {
+    for (let i = 1; i <= jasenetPienella.length; i++) {
         let req = "";
         if (i <=2) {
             req = "required";
