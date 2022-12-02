@@ -412,7 +412,7 @@ const ListaaJoukkueet = React.memo(function(props) {
     let rivit = [];
     for (let joukkue of joukkueetJarjestyksessa) {
         let rivi = (
-            <tr>
+            <tr key={joukkue.id}>
                 <th>{joukkue.sarja.nimi}</th>
                 <th>{joukkue.nimi}</th>
             </tr>
