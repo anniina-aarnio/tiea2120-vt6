@@ -171,6 +171,7 @@ const LisaaJoukkue = React.memo(function(props) {
             uudetJasenet[index] = nimi;
         } else {
             uudetJasenet.push(nimi);
+            eventTarget.setCustomValidity("");
         }
 
         // kun tämä tehty, tarkistetaan tilanne:
@@ -181,12 +182,23 @@ const LisaaJoukkue = React.memo(function(props) {
         let jasenluku = uudetJasenet.length;
 
         // tarkistaa onko eka/alin jäsenkyselyn riveistä tyhjä ja lisää tyhjän
-        let ekaTaiVikaOnTyhja = (uudetJasenet[jasenluku - 1] == "" || uudetJasenet[0] == "");
+        let ekaTaiVikaOnTyhja = (uudetJasenet[jasenluku - 1].trim() == "" || uudetJasenet[0].trim() == "");
 
         // lisätään loppuun tyhjä, jos sellaista ei ole ja jos max jäsenkyselyluku ei ole vielä täynnä
         // samoin jos jasenkyselyluku-minimin ali on menty, lisätään
         if (!ekaTaiVikaOnTyhja && jasenluku < props.jasenkyselyluku.max || jasenluku < props.jasenkyselyluku.min) {
             uudetJasenet.push("");
+        }
+
+        // TODO: dunno, miten korjataan ettei jätä customvalidityä voimaan jos
+        // yksi rivi poistuu ennen "         "-merkkijonoista ...
+        let inputit = eventTarget.parentElement.parentElement.elements;
+        for (let i = 0; i < inputit.length; i++) {
+            if (inputit[i].value.trim() == "" && (i != inputit.length -1 || i<props.jasenkyselyluku.min)) {
+                inputit[i].setCustomValidity("Vähintään yksi merkki (ei välilyönti)");
+            } else {
+                inputit[i].setCustomValidity("");
+            }
         }
 
         handleChange(kohta, uudetJasenet);
@@ -217,6 +229,17 @@ const LisaaJoukkue = React.memo(function(props) {
             }
         }
 
+        // luodaan jäsenistä sopivampi lista
+        let palautettavatJasenet = [];
+        let jasenisto = Array.from(state.jasenet);
+        palautettavatJasenet = jasenisto.filter((item) => item.trim() != "");
+        if (palautettavatJasenet.length < 2) {
+            virheita += 1;
+            // tee validityhomma ?? TODO - muualla ei toiminut oikein jos poisti välistä inputteja...
+            /* luoCustomValiditytJaseniin(); */
+        }
+        console.log(virheita);
+
         // varmistaa että validityt eivät herjaa
         if (!event.target.form.checkValidity() || virheita > 0) {
             event.target.form.reportValidity();
@@ -238,10 +261,7 @@ const LisaaJoukkue = React.memo(function(props) {
         });
         uusiJoukkue.leimaustapa = palautettavatLeimaukset;
 
-        // luodaan jäsenistä sopivampi lista
-        let palautettavatJasenet = [];
-        let jasenisto = Array.from(state.jasenet);
-        palautettavatJasenet = jasenisto.filter((item) => item != "");
+        // lisätään palautettavatJasenet
         uusiJoukkue.jasenet = palautettavatJasenet;
 
         // luodaan tyhjä joukkue, jolla tyhjennetään formi
@@ -375,7 +395,7 @@ const SarjaLista = React.memo(function SarjaLista(props) {
     let req = "";
     if (props.checked.length == 0) {
         req = "required";
-    };
+    }
 
     let muutaSisaltoa = function (event) {
         props.change(props.name, event.target);
@@ -419,13 +439,14 @@ const SarjaLista = React.memo(function SarjaLista(props) {
  * .change (funktio, joka muokkaa LisaaJoukkueen statea)
  * .minJasenmaara (vähimmäismäärä required jäsenistä)
  */
-const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
+const DynaamisetJasenet = function DynaamisetJasenet(props) {
 
     // tarkistuksia varten jäsenet pienellä lista
     let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
 
     // funktio jäsenen muuttamista varten
-    let muutaJasenta = function(event) {
+    let muutaJasenta = function(event, index) {
+        // TODO poista nämä jos aiheettomia ajatuksia
 /*      // nämä eivät olleet tehtävän kannalta pakollisia, joten pois käytöstä
         // aiheutti virheen tilanteessa, kun kirjoitti kaksi samaa nimeä ja
         // poisti ensimmäisen niin jälkimmäiset siirtyivät yhden ylöspäin
@@ -434,7 +455,14 @@ const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
             event.target.setCustomValidity("Jokaisen jäsenen nimen tulee olla uniikki");
         } else {
             event.target.setCustomValidity("");
-        } */
+        } 
+        let nimi = event.target.value;
+        if (nimi.trim() == "") {
+            event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti)");
+        } else {
+            event.target.setCustomValidity("");
+        }*/
+
         props.change("jasenet", event.target);
     };
 
@@ -450,7 +478,7 @@ const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
         let id = "jasen" + i;
         let rivi = (
             <label key={i}>Jäsen {i}
-                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={muutaJasenta}/>
+                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={(e)=>muutaJasenta(e, i)}/>
             </label>
         )
         jasenKyselyt.push(rivi);
@@ -465,7 +493,7 @@ const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
         
     );
     /* jshint ignore:end */
-});
+};
 
 /**
  * Listaa joukkueet aakkosjärjestykseen ensisijaisesti sarjan mukaan,
