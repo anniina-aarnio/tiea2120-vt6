@@ -13,6 +13,9 @@ const App = function(props) {
     const [state, setState] = React.useState({"kilpailu": kopioi_kilpailu(data) });
     console.log( state.kilpailu );
     let uusiJoukkueID = etsiIsoinID(Array.from(state.kilpailu.joukkueet));
+    
+    // dynaamista jäsenkyselyä varten oletusluku: minkä verran tyhjiä kenttiä alussa
+    let jasenluku = 2;
 
     /**
      * Lisää joukkueen App:n stateen
@@ -49,7 +52,8 @@ const App = function(props) {
         <div>
             <LisaaJoukkue
                 lisaaJoukkue={lisaaJoukkue}
-                kilpailu={state.kilpailu}/>
+                kilpailu={state.kilpailu}
+                jasenkyselyluku={jasenluku}/>
             <ListaaJoukkueet 
                 joukkueet={state.kilpailu.joukkueet}
                 leimaustavat={state.kilpailu.leimaustavat} />
@@ -67,21 +71,22 @@ const App = function(props) {
  * @returns JSX-muodossa form joukkueen lisäämiselle
  */
 const LisaaJoukkue = React.memo(function(props) {
-    // tehdään leimaustavoista oma listansa, jossa jokaisella leimaustavalla on
-    // aluksi selected: false ja id:index
-
     let leimaustavat = Array.from(props.kilpailu.leimaustavat);
     let joukkueenNimet = [];
     Array.from(props.kilpailu.joukkueet).map((item) => {
         joukkueenNimet.push(item.nimi);
     });
+    let alkuJasenlista = [];
+    for (let i = 0; i < props.jasenkyselyluku; i++) {
+        alkuJasenlista.push("");
+    }
 
     const [state, setState] = React.useState(
         {
             "nimi": "",
             "leimaustapa": [],
             "sarja": props.kilpailu.sarjat[0].id,
-            "jasenet": ["", "", "", "", ""]
+            "jasenet": alkuJasenlista
         }
     );
 
@@ -212,7 +217,7 @@ const LisaaJoukkue = React.memo(function(props) {
             "nimi": "",
             "leimaustapa": [],
             "sarja": props.kilpailu.sarjat[0].id,
-            "jasenet": ["","","","",""]
+            "jasenet": alkuJasenlista
         };
         setState(tyhjaJoukkue);
 
@@ -230,14 +235,17 @@ const LisaaJoukkue = React.memo(function(props) {
                 sarjat={props.kilpailu.sarjat}
                 selectedSarja={state.sarja}
                 leimaustavat={leimaustavat}
-                checkedCheckboxes={state.leimaustapa} />
-            <Jasenet
+                checkedCheckboxes={state.leimaustapa}/>
+            <DynaamisetJasenet
                 jasenet={state.jasenet}
-                change={valitseHandle} />
-            <DynaamisetJasenet />
+                change={valitseHandle}
+                jasenkyselyluku={props.jasenkyselyluku}/>
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
+    /*             <Jasenet
+                jasenet={state.jasenet}
+                change={valitseHandle} /> */
 });
 
 
@@ -419,10 +427,29 @@ const Jasenet = React.memo(function Jasenet(props) {
     /* jshint ignore:end */
 });
 
+/**
+ * JoukkueenTiedot pitää omaa statea, jossa on:
+ * - jaseninputtien tiedot
+ * Propseissa tuo:
+ * .items (lista jäsenistä)
+ * .change (funktio, joka muokkaa LisaaJoukkueen statea)
+ * .jasenkyselyluku (määrä, montako jäsenkyselyriviä alussa/vähintään on)
+ */
 const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
+
+    let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
+
+    let muutaJasenta = function(event) {
+        if (event.target.value != "" && jasenetPienella.includes(event.target.value.trim().toLowerCase())) {
+            event.target.setCustomValidity("Jokaisen jäsenen nimen tulee olla uniikki");
+        } else {
+            event.target.setCustomValidity("");
+        }
+        props.change("jasenet", event.target);
+    };
     /* jshint ignore:start */
     let jasenKyselyt = [];
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= props.jasenkyselyluku; i++) {
         let req = "";
         if (i <=2) {
             req = "required";
