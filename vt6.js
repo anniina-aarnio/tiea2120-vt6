@@ -71,6 +71,10 @@ const LisaaJoukkue = React.memo(function(props) {
     // aluksi selected: false ja id:index
 
     let leimaustavat = Array.from(props.kilpailu.leimaustavat);
+    let joukkueenNimet = [];
+    Array.from(props.kilpailu.joukkueet).map((item) => {
+        joukkueenNimet.push(item.nimi);
+    });
 
     const [state, setState] = React.useState(
         {
@@ -222,6 +226,7 @@ const LisaaJoukkue = React.memo(function(props) {
             <JoukkueenTiedot
                 change={valitseHandle}
                 nimi={state.nimi}
+                nimet={joukkueenNimet}
                 sarjat={props.kilpailu.sarjat}
                 selectedSarja={state.sarja}
                 leimaustavat={leimaustavat}
@@ -251,17 +256,22 @@ const JoukkueenTiedot = function JoukkueenTiedot(props) {
     let sarjat = Array.from(props.sarjat);
     sarjat.sort(aakkosjarjestysNimenMukaan);
 
+    let nimet = Array.from(props.nimet).map((item) => item.trim().toLowerCase());
+
     let leimaustavat = Array.from(props.leimaustavat).sort();
 
     let muutaNimea = function(event) {
         let validity = event.target.validity;
         if (validity.badInput || validity.patternMismatch || validity.rangeOverflow || validity.rangeUnderflow || validity.tooLong || validity.tooShort || validity.typeMismatch || validity.valueMissing || !event.target.value.trim()) {
             event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti)");
+        } else if (nimet.includes(event.target.value.trim().toLowerCase())) {
+            event.target.setCustomValidity("Samanniminen joukkue on jo olemassa");
         } else {
             event.target.setCustomValidity("");
         }
         props.change("nimi", event.target);
     };
+
 
     let muutaInputinSisaltoa = function(kohta, event) {
         props.change(kohta, event);
