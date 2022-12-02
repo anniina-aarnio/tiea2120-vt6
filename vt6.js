@@ -14,8 +14,9 @@ const App = function(props) {
     console.log( state.kilpailu );
     let uusiJoukkueID = etsiIsoinID(Array.from(state.kilpailu.joukkueet));
     
-    // dynaamista jäsenkyselyä varten oletusluku: minkä verran tyhjiä kenttiä alussa
-    let jasenluku = 2;
+    // dynaamista jäsenkyselyä varten oletusluvut:
+    // minkä verran tyhjiä kenttiä alussa, minkä verran saa olla max
+    let jasenluku = { "min": 2, "max": 5 };
 
     /**
      * Lisää joukkueen App:n stateen
@@ -77,7 +78,7 @@ const LisaaJoukkue = React.memo(function(props) {
         joukkueenNimet.push(item.nimi);
     });
     let alkuJasenlista = [];
-    for (let i = 0; i < props.jasenkyselyluku; i++) {
+    for (let i = 0; i < props.jasenkyselyluku.min; i++) {
         alkuJasenlista.push("");
     }
 
@@ -166,14 +167,15 @@ const LisaaJoukkue = React.memo(function(props) {
             uudetJasenet.push(nimi);
         }
 
-        if (nimi == "" && uudetJasenet.length > props.jasenkyselyluku) {
+        let jasenluku = uudetJasenet.length;
+        if (nimi == "" && jasenluku > props.jasenkyselyluku.min) {
             uudetJasenet.splice(index, 1);
         }
 
         // tarkistaa onko alin jäsenkyselyn riveistä tyhjä ja lisää tyhjän
-        let viimeinenOnTyhja = (uudetJasenet[uudetJasenet.length - 1] == "");
+        let viimeinenOnTyhja = (uudetJasenet[jasenluku - 1] == "");
 
-        if (!viimeinenOnTyhja) {
+        if (!viimeinenOnTyhja && jasenluku < props.jasenkyselyluku.max) {
             uudetJasenet.push("");
         }
 
@@ -258,8 +260,7 @@ const LisaaJoukkue = React.memo(function(props) {
                 checkedCheckboxes={state.leimaustapa}/>
             <DynaamisetJasenet
                 jasenet={state.jasenet}
-                change={valitseHandle}
-                jasenkyselyluku={props.jasenkyselyluku}/>
+                change={valitseHandle}/>
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
 });
@@ -402,7 +403,6 @@ const SarjaLista = React.memo(function SarjaLista(props) {
  * Propseissa tuo:
  * .jasenet (lista jäsenistä)
  * .change (funktio, joka muokkaa LisaaJoukkueen statea)
- * .jasenkyselyluku (määrä, montako jäsenkyselyriviä alussa/vähintään on)
  */
 const DynaamisetJasenet = React.memo(function DynaamisetJasenet(props) {
 
