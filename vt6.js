@@ -505,8 +505,14 @@ const DynaamisetJasenet = function DynaamisetJasenet(props) {
  */
 const ListaaJoukkueet = React.memo(function(props) {
     let joukkueetJarjestyksessa = Array.from(props.joukkueet).sort(aakkostaSarjanJaNimenMukaan);
-    /* jshint ignore:start */
 
+
+    let handleClick = function(event) {
+        // mitä tehdään kun klikkaa urlia   
+        console.log(event); 
+    };
+
+    /* jshint ignore:start */
     let rivit = [];
     for (let joukkue of joukkueetJarjestyksessa) {
         let leimaustapalista = [];
@@ -517,31 +523,15 @@ const ListaaJoukkueet = React.memo(function(props) {
         leimaustapalista.sort(); // nämä annetaan propsina JoukkueRiville
 
         // TODO
-        // nykyiseen nähden yksittäisen joukkueen tiedoista oma komponentti
-        // jäsenlistauksesta myös oma komponenttinsa
         // lisää joukkueen nimestä linkki, jota klikatessa kyseisen joukkueen tiedot ilmestyvät lomakkeelle muokattaviksi
         // tietoja muuttaessa on käytössä samat rajoitteet kuin uutta joukkuetta lisättäessä
         // muutettujen tietojen tallentamisen jälkeen joukkuelistaus päivittyy vastaamaan muutettuja tietoja
 
         let rivi = (
-            <JoukkueRivi joukkue={joukkue} url="#" leimaustapalista={leimaustapalista}/>
+            // joukkueen tiedot oma komponenttinsa
+            <JoukkueRivi key={joukkue.id} joukkue={joukkue} url="#" leimaustapalista={leimaustapalista} klikatessa={handleClick}/>
         );
-/*         
-        let rivi = (
-            <tr key={joukkue.id}>
-                <th>{joukkue.sarja.nimi}</th>
-                <th>
-                    <div>
-                        {joukkue.nimi}
-                    </div>
-                    <div>
-                        <ul>
-                            {leimaustapalista}
-                        </ul>
-                    </div>
-                </th>
-            </tr>
-        ) */
+
         rivit.push(rivi);
     }
 
@@ -566,13 +556,13 @@ const JoukkueRivi = React.memo(function JoukkueRivi(props) {
 
     /* jshint ignore:start */
     return (
-        <tr key={joukkue.id}>
+        <tr>
             <th>
                 {joukkue.sarja.nimi}
             </th>
             <th>
                 <div>
-                    <a href={props.url}>{joukkue.nimi}</a>
+                    <a href={props.url} onClick={props.klikatessa}>{joukkue.nimi}</a>
                 </div>
                 <div>
                     <ul className="leimaustapalista">
