@@ -47,8 +47,11 @@ const App = function(props) {
     /* jshint ignore:start */
     return (
         <div>
-            <LisaaJoukkue lisaaJoukkue={lisaaJoukkue} kilpailu={state.kilpailu}/>
-            <ListaaJoukkueet />
+            <LisaaJoukkue
+                lisaaJoukkue={lisaaJoukkue}
+                kilpailu={state.kilpailu}/>
+            <ListaaJoukkueet 
+                joukkueet={state.kilpailu.joukkueet}/>
         </div>
     );
     /* jshint ignore:end */
@@ -62,7 +65,7 @@ const App = function(props) {
  * @param {Object} props 
  * @returns JSX-muodossa form joukkueen lisäämiselle
  */
-const LisaaJoukkue = function(props) {
+const LisaaJoukkue = React.memo(function(props) {
     // tehdään leimaustavoista oma listansa, jossa jokaisella leimaustavalla on
     // aluksi selected: false ja id:index
 
@@ -226,7 +229,7 @@ const LisaaJoukkue = function(props) {
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
-};
+});
 
 
 /**
@@ -355,6 +358,13 @@ const SarjaLista = React.memo(function SarjaLista(props) {
     /* jshint ignore:end */
 });
 
+/**
+ * JoukkueenTiedot pitää omaa statea, jossa on:
+ * - jaseninputtien tiedot
+ * Propseissa tuo:
+ * .items (lista jäsenistä)
+ * .change (funktio, joka muokkaa LisaaJoukkueen statea)
+ */
 const Jasenet = React.memo(function Jasenet(props) {
 
     // ei tarkista onko jo joku toinen saman niminen jäsen TODO
@@ -392,6 +402,12 @@ const ListaaJoukkueet = function(props) {
     /* jshint ignore:start */
     return (
         <table>
+            <thead>
+                <tr>
+                    <th>Sarja</th>
+                    <th>Joukkue</th>
+                </tr>
+            </thead>
         </table>);
     /* jshint ignore:end */
 };

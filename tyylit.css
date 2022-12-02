@@ -1,5 +1,5 @@
 body {
-    background-color: grey;
+    background-color: white;
     color: black;
 }
  
@@ -42,8 +42,27 @@ span {
    margin: 0 10em 0 0;
 }
 
+/* invalidin inputin ulkomuoto */
 input:invalid {
    border: 1px solid red;
    border-radius: 3px;
    padding: 2px;
 }
+
+/* taulukon ulkomuoto */
+table {
+   border: .3em black outset;
+}
+
+thead {
+   background-color: #ffc653;
+}
+
+thead th {
+   padding: .6em;
+}
+
+th {
+   border: .1em black outset;
+}
+
