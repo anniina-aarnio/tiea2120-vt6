@@ -398,8 +398,28 @@ const Jasenet = React.memo(function Jasenet(props) {
     /* jshint ignore:end */
 });
 
-const ListaaJoukkueet = function(props) {
+/**
+ * Listaa joukkueet aakkosjärjestykseen ensisijaisesti sarjan mukaan,
+ * sitten joukkueen nimen mukaan
+ * Joukkueen yhteydessä listataan myös joukkueen käyttämät leimaustavat aakkosjärjestyksessä
+ * Propseissa tulee tiedot:
+ * .joukkueet (lista joukkue-objekteista, joista haetaan tiedot)
+ */
+const ListaaJoukkueet = React.memo(function(props) {
+    let joukkueetJarjestyksessa = Array.from(props.joukkueet).sort(aakkostaSarjanJaNimenMukaan);
     /* jshint ignore:start */
+
+    let rivit = [];
+    for (let joukkue of joukkueetJarjestyksessa) {
+        let rivi = (
+            <tr>
+                <th>{joukkue.sarja.nimi}</th>
+                <th>{joukkue.nimi}</th>
+            </tr>
+        )
+        rivit.push(rivi);
+    }
+
     return (
         <table>
             <thead>
@@ -409,14 +429,11 @@ const ListaaJoukkueet = function(props) {
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <th>Eka sarja</th>
-                    <th>Eka joukkue</th>
-                </tr>
+                {rivit}
             </tbody>
         </table>);
     /* jshint ignore:end */
-};
+});
 
 
 const root = ReactDOM.createRoot( document.getElementById('root'));
@@ -501,6 +518,37 @@ function aakkosjarjestysNimenMukaan(a,b) {
         return 1;
     }
     return 0;
+}
+
+/**
+ * Aakkostaa joukkueet ensisijaisesti sarjan nimen mukaan
+ * toissijaisesti joukkueen nimen mukaan
+ * Ei huomioi alun tai lopun whitespacea
+ * Vertailee kaikki lowercasena
+ * @param {Object} a ensimmäinen vertailtava joukkue 
+ * @param {Object} b toinen vertailtava joukkue
+ * @returns 
+ */
+function aakkostaSarjanJaNimenMukaan(a,b) {
+    let asarja = a.sarja.nimi.trim().toLowerCase();
+    let bsarja = b.sarja.nimi.trim().toLowerCase();
+    let animi = a.nimi.trim().toLowerCase();
+    let bnimi = b.nimi.trim().toLowerCase();
+
+    if (asarja < bsarja) {
+        return -1;
+    }
+    if (bsarja < asarja) {
+        return 1;
+    }
+    if (animi < bnimi) {
+        return -1;
+    }
+    if (bnimi < animi) {
+        return 1;
+    }
+    return 0;
+
 }
 
 /**
