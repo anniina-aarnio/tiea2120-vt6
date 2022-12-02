@@ -232,7 +232,7 @@ const LisaaJoukkue = React.memo(function(props) {
                 leimaustavat={leimaustavat}
                 checkedCheckboxes={state.leimaustapa} />
             <Jasenet
-                items={state.jasenet}
+                jasenet={state.jasenet}
                 change={valitseHandle} />
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
@@ -380,8 +380,15 @@ const SarjaLista = React.memo(function SarjaLista(props) {
  */
 const Jasenet = React.memo(function Jasenet(props) {
 
+    let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
+
     // ei tarkista onko jo joku toinen saman niminen jäsen TODO
     let muutaJasenta = function(event) {
+        if (event.target.value != "" && jasenetPienella.includes(event.target.value.trim().toLowerCase())) {
+            event.target.setCustomValidity("Jokaisen jäsenen nimen tulee olla uniikki");
+        } else {
+            event.target.setCustomValidity("");
+        }
         props.change("jasenet", event.target);
     };
 
@@ -395,7 +402,7 @@ const Jasenet = React.memo(function Jasenet(props) {
         let id = "jasen" + i;
         let rivi = (
             <label key={i}>Jäsen {i}
-                <input type="text" id={id} value={props.items[i-1]} required={req} onChange={muutaJasenta}/>
+                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={muutaJasenta}/>
             </label>
         )
         jasenKyselyt.push(rivi);
