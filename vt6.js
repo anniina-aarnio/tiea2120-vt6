@@ -142,7 +142,7 @@ const App = function(props) {
         let klikattuJoukkueID = event.target.id;
         // luodaan joukkue joka laitetaan stateen
         let etsitty = etsiObjektiIdnPerusteella(klikattuJoukkueID, state.kilpailu.joukkueet);
-        let uusijoukkue = {...etsitty, jasenet: [...etsitty.jasenet], leimaustapa: [...etsitty.leimaustapa]};
+        let uusijoukkue = {...etsitty, sarja: etsitty.sarja.id, jasenet: [...etsitty.jasenet], leimaustapa: [...etsitty.leimaustapa]};
         uusijoukkue.jasenet.push("");
         
         // muokkausta ja nimen vertailua varten state.joukkue.alkuperainenNimi
@@ -156,6 +156,7 @@ const App = function(props) {
         console.log("aloitetaan muokkaus:", uusijoukkue);
     };
 
+    // TODO ei vielä tallenna oikein o_O
     let handleTallenna = function (event) {
 
         let kentat = ["nimi", "leimaustapa", "sarja", "jasenet"];
