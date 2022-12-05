@@ -157,7 +157,8 @@ const LisaaJoukkue = React.memo(function(props) {
                 selectedSarja={props.selectedSarja}/>
             <DynaamisetJasenet
                 jasenet={props.jasenet}
-                minJasenmaara={props.minJasenmaara}/>
+                minJasenmaara={props.minJasenmaara}
+                change={handleInputMuutos}/>
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
@@ -279,6 +280,10 @@ const CheckboxLista = React.memo(function CheckboxLista(props) {
     // tarkistuksia varten jäsenet pienellä lista
     let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
 
+    let muutaJasenta = function(event) {
+        props.change("jasenet", event);
+    };
+
     /* jshint ignore:start */
     // luo dynaamisesti oikean määrän jäsenkyselyrivejä
     let jasenKyselyt = [];
@@ -290,7 +295,7 @@ const CheckboxLista = React.memo(function CheckboxLista(props) {
         let id = "jasen" + i;
         let rivi = (
             <label key={i}>Jäsen {i}
-                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={(e)=>muutaJasenta(e, i)}/>
+                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={muutaJasenta}/>
             </label>
         )
         jasenKyselyt.push(rivi);
