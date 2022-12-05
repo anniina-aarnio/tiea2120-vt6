@@ -413,7 +413,7 @@ const CheckboxLista = React.memo(function CheckboxLista(props) {
 });
 
 
-const DynaamisetJasenet = function DynaamisetJasenet(props) {
+const DynaamisetJasenet = React.memo( function DynaamisetJasenet(props) {
 
     // tarkistuksia varten jäsenet pienellä lista
     let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
@@ -448,7 +448,7 @@ const DynaamisetJasenet = function DynaamisetJasenet(props) {
         
     );
     /* jshint ignore:end */
-};
+});
 
 
 const ListaaJoukkueet = React.memo(function(props) {
