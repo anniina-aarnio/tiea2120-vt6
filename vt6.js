@@ -34,7 +34,6 @@ const App = function(props) {
     console.log( state.kilpailu );
 
     let valitseHandle = function(kohta, event) {
-        console.log("valitse handle:", kohta, event.target);
         if (kohta == "nimi"){
             handleChange(kohta, event.target.value);
         }
@@ -117,11 +116,76 @@ const App = function(props) {
         let uusijoukkue = {...uusistate.joukkue};
         uusijoukkue[kohta] = sisalto;
         uusistate.joukkue = uusijoukkue;
-        console.log("uusi state ennen handleChangea:", uusistate);
         setState(uusistate);
     };
 
     let handleTallenna = function (event) {
+
+        let kentat = ["nimi", "leimaustapa", "sarja", "jasenet"];
+        let virheita = 0;
+        for (let kentta of kentat) {
+            if (state.joukkue[kentta] == "" || state.joukkue[kentta].length == 0) {
+                virheita += 1;
+                if (kentta == "sarja") {
+                    // voisi tehdä validitycheckillä, mutta periaatteessa ei voi olla tyhjä
+                    console.log("pitää olla valittuna vähintään yksi sarja");
+                }
+            }
+        }
+
+        // luodaan jäsenistä sopivampi lista
+        let palautettavatJasenet = [];
+        let jasenisto = Array.from(state.joukkue.jasenet);
+        palautettavatJasenet = jasenisto.filter((item) => item.trim() != "");
+        if (palautettavatJasenet.length < 2) {
+            virheita += 1;
+            // TODO pitäisi tehdä validityillä mutta ....
+        }
+
+        // varmistaa että validityt eivät herjaa
+        if (!event.target.form.checkValidity() || virheita > 0) {
+            console.log("virheitä", virheita);
+            event.target.form.reportValidity();
+            return;
+        }
+
+        // luo uuden joukkueen, jonka tiedot päivitetään vastaamaan formia
+        let uusistate = {...state};
+        let uusijoukkue = {...uusistate.joukkue};
+        let uusidata = {...uusistate.kilpailu};
+        let uusiJoukkuelistaus = Array.from(uusidata.joukkueet);
+
+        uusijoukkue.sarja = etsiSarjaIdnPerusteella(uusijoukkue.sarja, state.kilpailu.sarjat);
+        // TODO tarkista tekeekö vain shallow kopion leimaustavoista ja jäsenistä
+        // jos on muokattava joukkue ....
+        if (uusijoukkue.id) {
+            for (let joukkue of uusiJoukkuelistaus) {
+                if (joukkue.id == uusijoukkue.id) {
+                    joukkue = uusijoukkue;
+                    break;
+                }
+            }
+        // jos ei muokattava niin täytyy olla uusi
+        } else {
+            uusijoukkue.id = etsiIsoinID(Array.from(state.kilpailu.joukkueet)) + 1;
+            uusijoukkue.rastileimaukset = [];
+            uusiJoukkuelistaus.push(uusijoukkue);
+        }
+
+        // state joukkueen tyhjennys
+        uusistate.joukkue = {
+            "nimi": "",
+            "leimaustapa": [],
+            "sarja": data.sarjat[0].id,
+            "jasenet": tyhjaJasenkyselylista
+        };
+
+        // stateen päivitys
+        uusidata.joukkueet = uusiJoukkuelistaus;
+        uusistate.kilpailu = uusidata;
+        setState(uusistate);
+
+
         console.log("tallenna",event);
     };
 
@@ -155,6 +219,7 @@ const LisaaJoukkue = React.memo(function(props) {
 
     let handleLisaa = function(event) {
         event.preventDefault();
+        console.log(event);
         props.tallenna(event);
     };
 
@@ -326,6 +391,7 @@ const CheckboxLista = React.memo(function CheckboxLista(props) {
 
 
 const ListaaJoukkueet = React.memo(function(props) {
+    console.log("Listaa joukkueet: ", props);
     let joukkueetJarjestyksessa = Array.from(props.joukkueet).sort(aakkostaSarjanJaNimenMukaan);
 
 
