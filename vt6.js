@@ -47,7 +47,12 @@ const App = function(props) {
                 console.log("sama nimi");
                 event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti");
             } else if (joukkueennimet.includes(event.target.value.trim().toLowerCase())) {
-                event.target.setCustomValidity("Samanniminen joukkue on jo olemassa");
+                // jos muokatessa eri kuin alkuperäinen nimi
+                if (event.target.value.trim().toLowerCase() != state.joukkue.alkuperainenNimi) {
+                    event.target.setCustomValidity("Samanniminen joukkue on jo olemassa");
+                }
+            } else {
+                event.target.setCustomValidity("");
             }
             handleChange(kohta, event.target.value);
         }
@@ -133,6 +138,12 @@ const App = function(props) {
         setState(uusistate);
     };
 
+    let aloitaMuokkaus = function(klikattuJoukkueID) {
+        // luodaan joukkue joka laitetaan stateen
+        let uusijoukkue = etsiObjektiIdnPerusteella(klikattuJoukkueID, state.kilpailu.joukkueet);
+        // joukkueella täytyy olla state.joukkue.alkuperainenNimi
+    };
+
     let handleTallenna = function (event) {
 
         let kentat = ["nimi", "leimaustapa", "sarja", "jasenet"];
@@ -171,7 +182,7 @@ const App = function(props) {
         let uusidata = {...uusistate.kilpailu};
         let uusiJoukkuelistaus = Array.from(uusidata.joukkueet);
 
-        uusijoukkue.sarja = etsiSarjaIdnPerusteella(uusijoukkue.sarja, state.kilpailu.sarjat);
+        uusijoukkue.sarja = etsiObjektiIdnPerusteella(uusijoukkue.sarja, state.kilpailu.sarjat);
         uusijoukkue.jasenet = palautettavatJasenet;
         // TODO tarkista tekeekö vain shallow kopion leimaustavoista ja jäsenistä
         // jos on muokattava joukkue ....
@@ -621,15 +632,15 @@ function aakkostaSarjanJaNimenMukaan(a,b) {
 }
 
 /**
- * Etsii sarjan id-numeron perusteella.
+ * Etsii objektin, jolla on objekti.id id-numeron perusteella.
  * Id on annettu merkkijonona
  * @param {String} id 
- * @return sarja-objekti
+ * @return objekti
  */
-function etsiSarjaIdnPerusteella(id, sarjat) {
-    for (let sarja of sarjat) {
-        if (sarja.id == id) {
-            return sarja;
+function etsiObjektiIdnPerusteella(id, objektit) {
+    for (let obj of objektit) {
+        if (obj.id == id) {
+            return obj;
         }
     }
 }
