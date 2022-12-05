@@ -10,6 +10,11 @@ const App = function(props) {
     // päivitettäessä React-komponentin tilaa on aina vanha tila kopioitava uudeksi
     // kopioimista varten on annettu valmis mallifunktio kopioi_kilpailu
     // huom. kaikissa tilanteissa ei kannata kopioida koko dataa
+    let jasenkyselyidenMaara = { min: 2, max: 5};
+    let tyhjaJasenkyselylista = [];
+    for (let i = 0; i < jasenkyselyidenMaara.min; i++) {
+        tyhjaJasenkyselylista.push("");
+    }
 
     const [state, setState] = React.useState({
         "kilpailu": kopioi_kilpailu(data),
@@ -17,7 +22,7 @@ const App = function(props) {
             "nimi": "",
             "leimaustapa": [],
             "sarja": data.sarjat[0].id,
-            "jasenet": ["", ""]
+            "jasenet": tyhjaJasenkyselylista
         }
     });
 
