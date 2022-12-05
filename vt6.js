@@ -204,7 +204,9 @@ const App = function(props) {
         if (uusijoukkue.id) {
             for (let joukkue of uusiJoukkuelistaus) {
                 if (joukkue.id == uusijoukkue.id) {
+                    vaihdaJoukkueenTiedot(joukkue, uusijoukkue);
                     joukkue = uusijoukkue;
+                    console.log("löytyi!", joukkue);
                     break;
                 }
             }
@@ -604,6 +606,17 @@ function kopioi_kilpailu(data) {
     return kilpailu;
 }
 
+/**
+ * Vaihtaa vanhan joukkueen tiedot uuden joukkueen tietoihin
+ * @param {Object} vanhaJoukkue 
+ * @param {Object} uusiJoukkue 
+ */
+function vaihdaJoukkueenTiedot(vanhaJoukkue, uusiJoukkue) {
+    let kohdat = ["nimi", "jasenet", "sarja", "leimaustapa"];
+    for (let kohta of kohdat) {
+        vanhaJoukkue[kohta] = uusiJoukkue[kohta];
+    }
+}
 
 /**
  * Sorting-funktion apufunktio
