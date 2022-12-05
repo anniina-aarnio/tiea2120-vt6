@@ -211,7 +211,7 @@ const App = function(props) {
 
         uusijoukkue.sarja = etsiObjektiIdnPerusteella(uusijoukkue.sarja, state.kilpailu.sarjat);
         uusijoukkue.jasenet = palautettavatJasenet;
-        // TODO tarkista tekeekö vain shallow kopion leimaustavoista ja jäsenistä TODO EI TOIMI OIKEIN
+
         // jos on muokattava joukkue ....
         if (uusijoukkue.id) {
             for (let joukkue of uusiJoukkuelistaus) {
