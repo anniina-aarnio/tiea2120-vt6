@@ -48,7 +48,6 @@ const App = function(props) {
             });
 
             if (validity.badInput || validity.patternMismatch || validity.rangeOverflow || validity.rangeUnderflow || validity.tooLong || validity.tooShort || validity.typeMismatch || validity.valueMissing || !event.target.value.trim()) {
-                console.log("sama nimi");
                 event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti");
             } else if (joukkueennimet.includes(event.target.value.trim().toLowerCase())) {
                 // jos muokatessa eri kuin alkuperäinen nimi
@@ -103,6 +102,17 @@ const App = function(props) {
         let uudetJasenet = Array.from(state.joukkue.jasenet);
 
         let nimi = eventTarget.value;
+        let validity = eventTarget.validity;
+        
+        if (validity.badInput || validity.patternMismatch || validity.rangeOverflow || validity.rangeUnderflow || validity.tooLong || validity.tooShort || validity.typeMismatch || validity.valueMissing || !eventTarget.value.trim()) {
+            console.log("sama nimi");
+            eventTarget.setCustomValidity("Vähintään yksi merkki (ei välilyönti");
+        } else if (uudetJasenet.includes(nimi.trim().toLowerCase())) {
+            // jos muokatessa eri kuin alkuperäinen nimi
+            eventTarget.setCustomValidity("Samanniminen jäsen on jo olemassa");
+        } else {
+            eventTarget.setCustomValidity("");
+        }
 
         // tarkistetaan onko sillä indeksillä jo sisältöä
         // jos on: muutetaan sitä
@@ -123,23 +133,6 @@ const App = function(props) {
 
         if (!ekaTaiVikaTyhja && jasenluku < jasenkyselyidenMaara.max || jasenluku < jasenkyselyidenMaara.min) {
             uudetJasenet.push("");
-        }
-
-        let inputit = eventTarget.form.elements;
-        let jaseninputit = [];
-        for (let inputti of inputit) {
-            if (inputti.id.startsWith("jasen")) {
-                jaseninputit.push(inputti);
-            }
-        }
-        for (let i = 0; i < jaseninputit.length -1; i++) {
-            for (let j = i+1; j < jaseninputit.length; j++) {
-                if (jaseninputit[i].value.trim().toLowerCase() == jaseninputit[j].value.trim().toLowerCase()) {
-                    jaseninputit[j].setCustomValidity("Sama nimi on jo käytössä");
-                } else {
-                    jaseninputit[j].setCustomValidity("");
-                }
-            }
         }
 
         handleChange(kohta, uudetJasenet);
