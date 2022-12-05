@@ -137,6 +137,7 @@ const App = function(props) {
         let palautettavatJasenet = [];
         let jasenisto = Array.from(state.joukkue.jasenet);
         palautettavatJasenet = jasenisto.filter((item) => item.trim() != "");
+        console.log(palautettavatJasenet);
         if (palautettavatJasenet.length < 2) {
             virheita += 1;
             // TODO pitäisi tehdä validityillä mutta ....
@@ -156,6 +157,7 @@ const App = function(props) {
         let uusiJoukkuelistaus = Array.from(uusidata.joukkueet);
 
         uusijoukkue.sarja = etsiSarjaIdnPerusteella(uusijoukkue.sarja, state.kilpailu.sarjat);
+        uusijoukkue.jasenet = palautettavatJasenet;
         // TODO tarkista tekeekö vain shallow kopion leimaustavoista ja jäsenistä
         // jos on muokattava joukkue ....
         if (uusijoukkue.id) {
