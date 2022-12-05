@@ -10,14 +10,18 @@ const App = function(props) {
     // päivitettäessä React-komponentin tilaa on aina vanha tila kopioitava uudeksi
     // kopioimista varten on annettu valmis mallifunktio kopioi_kilpailu
     // huom. kaikissa tilanteissa ei kannata kopioida koko dataa
-    const [state, setState] = React.useState({"kilpailu": kopioi_kilpailu(data) });
-    console.log( state.kilpailu );
+    const [state, setState] = React.useState({
+        "kilpailu": kopioi_kilpailu(data),
+        "muokattavaJoukkue": data.joukkueet[0]
+    });
+    console.log( state.kilpailu, state.muokattavaJoukkue );
+
+    // id uutta joukkuetta varten
     let uusiJoukkueID = etsiIsoinID(Array.from(state.kilpailu.joukkueet));
 
     // dynaamista jäsenkyselyä varten oletusluvut:
     // minkä verran tyhjiä kenttiä alussa, minkä verran saa olla max
     let jasenluku = { "min": 2, "max": 5 };
-
 
     /**
      * Lisää joukkueen App:n stateen
@@ -49,12 +53,49 @@ const App = function(props) {
         console.log("App sanoo: ", lisattyJoukkue, state.kilpailu);
     };
 
+    /**
+     * Muokkaa joukkueen App:n stateen
+     * muokattuJoukkue on seuraavankaltainen objekti:
+     * {
+     *  "nimi": ei-tyhjä-nimi,
+     *  "leimaustapa": [] (vähintään tyhjä array),
+     *  "sarja": pakollinen-valittu-sarja,
+     *  "jasenet": [jäsen1, jäsen2, ...] (vähintään 2 jäsentä)
+     * }
+     * @param {Object} muokattuJoukkue 
+     */
+    let tallennaMuokattuJoukkue = function(muokattuJoukkue) {
+        // ottaa muokattavan joukkueen id:n yms: statesta
+        let joukkue = state.muokattavaJoukkue;
+        let uusistate = {...state};
+        let uusidata = {...uusistate.kilpailu};
+        let uusiJoukkueListaus = Array.from(uusidata.joukkueet);
+        muokattuJoukkue.id = joukkue.id;
+        muokattuJoukkue.rastileimaukset = joukkue.rastileimaukset;
+
+        // vaihdetaan muokatun joukkueen tiedot
+        for (let i = 0; i < uusiJoukkueListaus.length; i++) {
+            if (uusiJoukkueListaus[i].id == muokattuJoukkue.id) {
+                uusiJoukkueListaus[i] = muokattuJoukkue;
+                break;
+            }
+        }
+
+        // päivitetään state
+        uusidata.joukkueet = uusiJoukkueListaus;
+        uusistate.kilpailu = uusidata;
+        uusistate.muokattavaJoukkue = null;
+        setState(uusistate);
+
+        console.log("App sanoo: ", muokattuJoukkue);
+    };
 
     /* jshint ignore:start */
     return (
         <div>
             <LisaaJoukkue
                 lisaaJoukkue={lisaaJoukkue}
+                tallennaJoukkueenMuutokset={tallennaMuokattuJoukkue}
                 kilpailu={state.kilpailu}
                 jasenkyselyluku={jasenluku}
                 muokattavaJoukkue={state.muokattavaJoukkue}/>
@@ -69,6 +110,7 @@ const App = function(props) {
 
 /**
  * Propseissa:
+ * .tallennaJoukkueenMuutokset (funktio, jolla muokattavan joukkueen tiedot muokataan Appin stateen)
  * .lisaaJoukkue (funktio, jolla joukkue lisätään Appin stateen)
  * .kilpailu (Appin statesta sen hetkinen kilpailu ~= data)
  * .jasenkyselyluku (min ja max, montako jäsentä kysytään)
@@ -95,7 +137,7 @@ const LisaaJoukkue = React.memo(function(props) {
             tietoObjekti = {
                 nimi: joukkue.nimi,
                 leimaustapa: joukkue.leimaustapa,
-                sarja: joukkue.sarja,
+                sarja: joukkue.sarja.id,
                 jasenet: joukkue.jasenet
             };
         }
@@ -302,8 +344,15 @@ const LisaaJoukkue = React.memo(function(props) {
         }; */
         setState(tyhjaJoukkue);
 
-        // lisätään joukkue App:n lisaaJoukkue-funktiolla
-        props.lisaaJoukkue(uusiJoukkue);
+        if (props.joukkue) {
+            // jos muokataan joukkuetta
+            props.tallennaJoukkueenMuutokset(uusiJoukkue);
+        }
+        else {
+            // lisätään joukkue App:n lisaaJoukkue-funktiolla
+            props.lisaaJoukkue(uusiJoukkue);
+        }
+
     };
 
     /* jshint ignore:start */
