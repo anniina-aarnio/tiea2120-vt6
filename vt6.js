@@ -125,7 +125,8 @@ const App = function(props) {
                 sarjat={state.kilpailu.sarjat}
                 checkedCheckboxes={state.joukkue.leimaustapa}
                 selectedSarja={state.joukkue.sarja}
-                jasenet={state.joukkue.jasenet}/>
+                jasenet={state.joukkue.jasenet}
+                minJasenmaara={jasenkyselyidenMaara.min}/>
             <ListaaJoukkueet 
                 joukkueet={state.kilpailu.joukkueet}
                 leimaustavat={state.kilpailu.leimaustavat}/>
@@ -155,7 +156,8 @@ const LisaaJoukkue = React.memo(function(props) {
                 sarjat={props.sarjat}
                 selectedSarja={props.selectedSarja}/>
             <DynaamisetJasenet
-                jasenet={props.jasenet}/>
+                jasenet={props.jasenet}
+                minJasenmaara={props.minJasenmaara}/>
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
     /* jshint ignore:end */
@@ -277,7 +279,7 @@ const CheckboxLista = React.memo(function CheckboxLista(props) {
     // tarkistuksia varten jäsenet pienellä lista
     let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
 
-        /* jshint ignore:start */
+    /* jshint ignore:start */
     // luo dynaamisesti oikean määrän jäsenkyselyrivejä
     let jasenKyselyt = [];
     for (let i = 1; i <= jasenetPienella.length; i++) {
