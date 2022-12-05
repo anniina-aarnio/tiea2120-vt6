@@ -92,6 +92,18 @@ const App = function(props) {
             eventTarget.setCustomValidity("");
         }
 
+        // onko nimi tyhjä? jos, niin poistetaan
+        if (nimi == "") {
+            uudetJasenet.splice(index, 1);
+        }
+
+        let jasenluku = uudetJasenet.length;
+        let ekaTaiVikaTyhja = (uudetJasenet[jasenluku - 1].trim() == "" || uudetJasenet[0].trim() == "");
+
+        if (!ekaTaiVikaTyhja && jasenluku < jasenkyselyidenMaara.max || jasenluku < jasenkyselyidenMaara.min) {
+            uudetJasenet.push("");
+        }
+
         handleChange(kohta, uudetJasenet);
     };
 
