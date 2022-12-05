@@ -13,10 +13,11 @@ const App = function(props) {
     const [state, setState] = React.useState({"kilpailu": kopioi_kilpailu(data) });
     console.log( state.kilpailu );
     let uusiJoukkueID = etsiIsoinID(Array.from(state.kilpailu.joukkueet));
-    
+
     // dynaamista jäsenkyselyä varten oletusluvut:
     // minkä verran tyhjiä kenttiä alussa, minkä verran saa olla max
     let jasenluku = { "min": 2, "max": 5 };
+
 
     /**
      * Lisää joukkueen App:n stateen
@@ -42,10 +43,12 @@ const App = function(props) {
         uusiJoukkueListaus.push(lisattyJoukkue);
         uusidata.joukkueet = uusiJoukkueListaus;
         uusistate.kilpailu = uusidata;
+        uusistate.muokattavaJoukkue = null;
         setState(uusistate);
 
         console.log("App sanoo: ", lisattyJoukkue, state.kilpailu);
     };
+
 
     /* jshint ignore:start */
     return (
@@ -53,7 +56,8 @@ const App = function(props) {
             <LisaaJoukkue
                 lisaaJoukkue={lisaaJoukkue}
                 kilpailu={state.kilpailu}
-                jasenkyselyluku={jasenluku}/>
+                jasenkyselyluku={jasenluku}
+                muokattavaJoukkue={state.muokattavaJoukkue}/>
             <ListaaJoukkueet 
                 joukkueet={state.kilpailu.joukkueet}
                 leimaustavat={state.kilpailu.leimaustavat} />
@@ -67,6 +71,7 @@ const App = function(props) {
  * Propseissa:
  * .lisaaJoukkue (funktio, jolla joukkue lisätään Appin stateen)
  * .kilpailu (Appin statesta sen hetkinen kilpailu ~= data)
+ * .jasenkyselyluku (min ja max, montako jäsentä kysytään)
  * @param {Object} props 
  * @returns JSX-muodossa form joukkueen lisäämiselle
  */
@@ -76,19 +81,43 @@ const LisaaJoukkue = React.memo(function(props) {
     Array.from(props.kilpailu.joukkueet).map((item) => {
         joukkueenNimet.push(item.nimi);
     });
-    let alkuJasenlista = [];
-    for (let i = 0; i < props.jasenkyselyluku.min; i++) {
-        alkuJasenlista.push("");
+
+
+    /**
+     * Luo tieto-objektin, jonka tiedoista täytetään lomakkeeseen
+     * joko: tyhjän joukkueen tiedot
+     * tai: muokattavan joukkueen tiedot
+     * @param {Object} joukkue 
+     */
+    function muokattavanJoukkueenTiedot(joukkue) {
+        let tietoObjekti = {};
+        if (joukkue) {
+            tietoObjekti = {
+                nimi: joukkue.nimi,
+                leimaustapa: joukkue.leimaustapa,
+                sarja: joukkue.sarja,
+                jasenet: joukkue.jasenet
+            };
+        }
+        else {
+            let alkuJasenlista = [];
+            for (let i = 0; i < props.jasenkyselyluku.min; i++) {
+                alkuJasenlista.push("");
+            }
+            tietoObjekti = {
+                nimi: "",
+                leimaustapa: [],
+                sarja: props.kilpailu.sarjat[0].id,
+                jasenet: alkuJasenlista
+            };
+        }
+        return tietoObjekti;
+
     }
 
-    const [state, setState] = React.useState(
-        {
-            "nimi": "",
-            "leimaustapa": [],
-            "sarja": props.kilpailu.sarjat[0].id,
-            "jasenet": alkuJasenlista
-        }
-    );
+    let taytetytTiedot = muokattavanJoukkueenTiedot(props.muokattavaJoukkue);
+
+    const [state, setState] = React.useState(taytetytTiedot);
 
     /**
      * Jos joukkueen tiedoissa tai jäsenissä tulee muutosta
@@ -249,7 +278,7 @@ const LisaaJoukkue = React.memo(function(props) {
         let uusiJoukkue = {...state};
 
         // lisätään sarja oikeassa muodossa
-        uusiJoukkue.sarja = etsiSarjaIdnPerusteella(uusiJoukkue.sarja, props.kilpailu.sarjat);
+        uusiJoukkue.sarja = etsiObjektiIdnPerusteella(uusiJoukkue.sarja, props.kilpailu.sarjat);
 
         // lisätään leimauksien indeksit nimien sijaan
         let palautettavatLeimaukset = [];
@@ -263,13 +292,14 @@ const LisaaJoukkue = React.memo(function(props) {
         // lisätään palautettavatJasenet
         uusiJoukkue.jasenet = palautettavatJasenet;
 
+        let tyhjaJoukkue = muokattavanJoukkueenTiedot(null);
         // luodaan tyhjä joukkue, jolla tyhjennetään formi
-        let tyhjaJoukkue = {
+/*         let tyhjaJoukkue = {
             "nimi": "",
             "leimaustapa": [],
             "sarja": props.kilpailu.sarjat[0].id,
             "jasenet": alkuJasenlista
-        };
+        }; */
         setState(tyhjaJoukkue);
 
         // lisätään joukkue App:n lisaaJoukkue-funktiolla
@@ -506,9 +536,9 @@ const ListaaJoukkueet = React.memo(function(props) {
     let joukkueetJarjestyksessa = Array.from(props.joukkueet).sort(aakkostaSarjanJaNimenMukaan);
 
 
-    let handleClick = function(event) {
-        // mitä tehdään kun klikkaa urlia   
-        console.log(event); 
+    let handleClick = function(joukkueenID) {
+        // mitä tehdään kun klikkaa urlia 
+        console.log(joukkueenID); 
     };
 
     /* jshint ignore:start */
@@ -551,8 +581,20 @@ const ListaaJoukkueet = React.memo(function(props) {
 });
 
 
+/**
+ * JoukkueRivi, saa propseissa:
+ * .key (joukkueen id)
+ * .joukkue (joukkue-objekti)
+ * .url (mihin menee kun klikkaa)
+ * .leimaustapalista (joukkueen leimaustapalista aakkosjärjestyksessä)
+ * .klikatessa (funktio, jonka toteuttaa kun joukueen nimeä klikataan)
+ */
 const JoukkueRivi = React.memo(function JoukkueRivi(props) {
     let joukkue = props.joukkue;
+
+    let handleKlikkaus = function(event) {
+        props.klikatessa(event.target.id);
+    };
 
     /* jshint ignore:start */
     return (
@@ -562,7 +604,7 @@ const JoukkueRivi = React.memo(function JoukkueRivi(props) {
             </th>
             <th>
                 <div>
-                    <a href={props.url} onClick={props.klikatessa}>{joukkue.nimi}</a>
+                    <a href={props.url} onClick={handleKlikkaus} id={joukkue.id}>{joukkue.nimi}</a>
                 </div>
                 <div>
                     <ul className="leimaustapalista">
@@ -711,19 +753,18 @@ function aakkostaSarjanJaNimenMukaan(a,b) {
 }
 
 /**
- * Etsii sarjan id-numeron perusteella.
+ * Etsii objektin id-numeron perusteella.
  * Id on annettu merkkijonona
  * @param {String} id 
- * @return sarja-objekti
+ * @return objekti, jolla objekti.id = annettu id
  */
-function etsiSarjaIdnPerusteella(id, sarjat) {
-    for (let sarja of sarjat) {
-        if (sarja.id == id) {
-            return sarja;
+function etsiObjektiIdnPerusteella(id, objektilista) {
+    for (let objekti of objektilista) {
+        if (objekti.id == id) {
+            return objekti;
         }
     }
 }
-
 
 /**
  * Etsii listan alkio.id seasta suurimman luvun ja lisää siihen yhden
