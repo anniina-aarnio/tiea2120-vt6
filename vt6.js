@@ -189,6 +189,7 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 
 
 const SarjaLista = React.memo(function SarjaLista(props) {
+    let aakkostettu = Array.from(props.items).sort(aakkosjarjestysNimenMukaan);
 
     let muutaSisaltoa = function (event) {
         props.change(props.name, event);
@@ -197,7 +198,7 @@ const SarjaLista = React.memo(function SarjaLista(props) {
     /* jshint ignore:start */
     let listaus = [];
     let i = 0;
-    for (let item of props.items) {
+    for (let item of aakkostettu) {
         let rivi = (
             <label className="nimi-inputilla" key={item.id}>
                 {item.nimi}
