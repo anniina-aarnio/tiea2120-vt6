@@ -143,8 +143,10 @@ const App = function(props) {
         // luodaan joukkue joka laitetaan stateen
         let etsitty = etsiObjektiIdnPerusteella(klikattuJoukkueID, state.kilpailu.joukkueet);
         let uusijoukkue = {...etsitty, sarja: etsitty.sarja.id, jasenet: [...etsitty.jasenet], leimaustapa: [...etsitty.leimaustapa]};
-        uusijoukkue.jasenet.push("");
-        
+        if (uusijoukkue.jasenet.length < jasenkyselyidenMaara.max) {
+            uusijoukkue.jasenet.push("");
+        }
+
         // muokkausta ja nimen vertailua varten state.joukkue.alkuperainenNimi
         uusijoukkue.alkuperainenNimi = etsitty.nimi.trim().toLowerCase();
 
@@ -197,7 +199,7 @@ const App = function(props) {
 
         uusijoukkue.sarja = etsiObjektiIdnPerusteella(uusijoukkue.sarja, state.kilpailu.sarjat);
         uusijoukkue.jasenet = palautettavatJasenet;
-        // TODO tarkista tekeekö vain shallow kopion leimaustavoista ja jäsenistä
+        // TODO tarkista tekeekö vain shallow kopion leimaustavoista ja jäsenistä TODO EI TOIMI OIKEIN
         // jos on muokattava joukkue ....
         if (uusijoukkue.id) {
             for (let joukkue of uusiJoukkuelistaus) {
@@ -228,7 +230,7 @@ const App = function(props) {
         setState(uusistate);
 
 
-        console.log("tallenna",event);
+        console.log("tallenna", tyhjajoukkue);
     };
 
 
