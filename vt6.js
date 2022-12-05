@@ -138,10 +138,22 @@ const App = function(props) {
         setState(uusistate);
     };
 
-    let aloitaMuokkaus = function(klikattuJoukkueID) {
+    let aloitaMuokkaus = function(event) {
+        let klikattuJoukkueID = event.target.id;
         // luodaan joukkue joka laitetaan stateen
-        let uusijoukkue = etsiObjektiIdnPerusteella(klikattuJoukkueID, state.kilpailu.joukkueet);
-        // joukkueella täytyy olla state.joukkue.alkuperainenNimi
+        let etsitty = etsiObjektiIdnPerusteella(klikattuJoukkueID, state.kilpailu.joukkueet);
+        let uusijoukkue = {...etsitty, jasenet: [...etsitty.jasenet], leimaustapa: [...etsitty.leimaustapa]};
+        uusijoukkue.jasenet.push("");
+        
+        // muokkausta ja nimen vertailua varten state.joukkue.alkuperainenNimi
+        uusijoukkue.alkuperainenNimi = etsitty.nimi.trim().toLowerCase();
+
+        let uusistate = {...state};
+        uusistate.joukkue = uusijoukkue;
+
+        setState(uusistate);
+        
+        console.log("aloitetaan muokkaus:", uusijoukkue);
     };
 
     let handleTallenna = function (event) {
@@ -235,7 +247,8 @@ const App = function(props) {
                 minJasenmaara={jasenkyselyidenMaara.min}/>
             <ListaaJoukkueet 
                 joukkueet={state.kilpailu.joukkueet}
-                leimaustavat={state.kilpailu.leimaustavat}/>
+                leimaustavat={state.kilpailu.leimaustavat}
+                klikatessa={aloitaMuokkaus}/>
         </div>
     );
     /* jshint ignore:end */
@@ -428,7 +441,7 @@ const ListaaJoukkueet = React.memo(function(props) {
 
     let handleClick = function(event) {
         // mitä tehdään kun klikkaa urlia   
-        console.log(event); 
+        props.klikatessa(event); 
     };
 
     /* jshint ignore:start */
@@ -473,6 +486,11 @@ const ListaaJoukkueet = React.memo(function(props) {
 const JoukkueRivi = React.memo(function JoukkueRivi(props) {
     let joukkue = props.joukkue;
 
+    let handleKlikkaus = function (event) {
+        props.klikatessa(event);
+    };
+
+    // TODO vaihda id={joukkue.id} sellaiseksi joka alkaa kirjaimella
     /* jshint ignore:start */
     return (
         <tr>
@@ -481,7 +499,7 @@ const JoukkueRivi = React.memo(function JoukkueRivi(props) {
             </th>
             <th>
                 <div>
-                    <a href={props.url} onClick={props.klikatessa}>{joukkue.nimi}</a>
+                    <a href={props.url} id={joukkue.id} onClick={handleKlikkaus}>{joukkue.nimi}</a>
                 </div>
                 <div>
                     <ul className="leimaustapalista">
