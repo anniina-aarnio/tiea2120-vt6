@@ -26,9 +26,13 @@ const App = function(props) {
         }
     });
 
-    let leimaustavatMap = new Map();
+    let leimaustavatMapNimiNumero = new Map();
     Array.from(state.kilpailu.leimaustavat).map((item, index) => {
-        leimaustavatMap.set(item, index);
+        leimaustavatMapNimiNumero.set(item, index);
+    });
+    let leimaustavatMapNumeroNimi = new Map();
+    Array.from(state.kilpailu.leimaustavat).map((item, index) => {
+        leimaustavatMapNumeroNimi.set(index, item);
     });
     
     console.log( state.kilpailu );
@@ -79,11 +83,11 @@ const App = function(props) {
         // jos nyt klikattiin checkatuksi, lisätään listaan
         let leimaustapanimi = objekti.previousSibling.textContent;
         if (objekti.checked) {
-            uudetCheckboxit.push(leimaustavatMap.get(leimaustapanimi));
+            uudetCheckboxit.push(leimaustavatMapNimiNumero.get(leimaustapanimi));
                 
             // muuten poistetaan listasta
         } else {
-            uudetCheckboxit.splice(uudetCheckboxit.indexOf(leimaustavatMap.get(leimaustapanimi)), 1);
+            uudetCheckboxit.splice(uudetCheckboxit.indexOf(leimaustavatMapNimiNumero.get(leimaustapanimi)), 1);
         }
         handleChange(kohta, uudetCheckboxit);
     };
@@ -244,7 +248,7 @@ const App = function(props) {
                 change={valitseHandle}
                 nimi={state.joukkue.nimi}
                 tallenna={handleTallenna}
-                leimaustavat={leimaustavatMap}
+                leimaustavat={leimaustavatMapNimiNumero}
                 sarjat={state.kilpailu.sarjat}
                 checkedCheckboxes={state.joukkue.leimaustapa}
                 selectedSarja={state.joukkue.sarja}
@@ -252,7 +256,7 @@ const App = function(props) {
                 minJasenmaara={jasenkyselyidenMaara.min}/>
             <ListaaJoukkueet 
                 joukkueet={state.kilpailu.joukkueet}
-                leimaustavat={state.kilpailu.leimaustavat}
+                leimaustavat={leimaustavatMapNumeroNimi}
                 klikatessa={aloitaMuokkaus}/>
         </div>
     );
@@ -401,7 +405,7 @@ const CheckboxLista = React.memo(function CheckboxLista(props) {
 });
 
 
- const DynaamisetJasenet = function DynaamisetJasenet(props) {
+const DynaamisetJasenet = function DynaamisetJasenet(props) {
 
     // tarkistuksia varten jäsenet pienellä lista
     let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
@@ -453,16 +457,19 @@ const ListaaJoukkueet = React.memo(function(props) {
     let rivit = [];
     for (let joukkue of joukkueetJarjestyksessa) {
         let leimaustapalista = [];
-        for (let lt of joukkue.leimaustapa) {
-            leimaustapalista.push(
-                <li key={lt}>{props.leimaustavat[lt]}</li>);
-        }
-        leimaustapalista.sort(); // nämä annetaan propsina JoukkueRiville
+        let aakkostettu = joukkue.leimaustapa.sort((a,b) => {
+            if (props.leimaustavat.get(a) < props.leimaustavat.get(b)) {
+                return -1
+            } else if (props.leimaustavat.get(b) < props.leimaustavat.get(a)) {
+                return 1;
+            }
+            return 0;
+        });
 
-        // TODO
-        // lisää joukkueen nimestä linkki, jota klikatessa kyseisen joukkueen tiedot ilmestyvät lomakkeelle muokattaviksi
-        // tietoja muuttaessa on käytössä samat rajoitteet kuin uutta joukkuetta lisättäessä
-        // muutettujen tietojen tallentamisen jälkeen joukkuelistaus päivittyy vastaamaan muutettuja tietoja
+        for (let lt of aakkostettu) {
+            leimaustapalista.push(
+                <li key={lt}>{props.leimaustavat.get(lt)}</li>);
+        }
 
         let rivi = (
             // joukkueen tiedot oma komponenttinsa
