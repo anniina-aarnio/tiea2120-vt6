@@ -54,12 +54,13 @@ const App = function(props) {
         let uudetCheckboxit = Array.from(state.joukkue[kohta]);
 
         // jos nyt klikattiin checkatuksi, lisätään listaan
+        let leimaustapanimi = objekti.previousSibling.textContent;
         if (objekti.checked) {
-            uudetCheckboxit.push(objekti.previousSibling.textContent);
+            uudetCheckboxit.push(leimaustapanimi);
                 
             // muuten poistetaan listasta
         } else {
-            uudetCheckboxit.splice(uudetCheckboxit.indexOf(objekti.previousSibling.textContent), 1);
+            uudetCheckboxit.splice(uudetCheckboxit.indexOf(leimaustapanimi), 1);
         }
         handleChange(kohta, uudetCheckboxit);
     };
@@ -99,6 +100,7 @@ const App = function(props) {
         let uusijoukkue = {...uusistate.joukkue};
         uusijoukkue[kohta] = sisalto;
         uusistate.joukkue = uusijoukkue;
+        console.log("uusi state ennen changea:", uusistate);
         setState(uusistate);
     };
 
