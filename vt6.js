@@ -10,7 +10,12 @@ const App = function(props) {
     // päivitettäessä React-komponentin tilaa on aina vanha tila kopioitava uudeksi
     // kopioimista varten on annettu valmis mallifunktio kopioi_kilpailu
     // huom. kaikissa tilanteissa ei kannata kopioida koko dataa
-    const [state, setState] = React.useState({"kilpailu": kopioi_kilpailu(data) });
+    let tyhjaJoukkue = {
+
+    };
+    const [state, setState] = React.useState({
+        "kilpailu": kopioi_kilpailu(data),
+        "muokattavaJoukkue": null });
     console.log( state.kilpailu );
     let uusiJoukkueID = etsiIsoinID(Array.from(state.kilpailu.joukkueet));
     
