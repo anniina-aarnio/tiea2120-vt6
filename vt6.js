@@ -16,7 +16,7 @@ const App = function(props) {
         "joukkue": {
             "nimi": "",
             "leimaustapa": [],
-            "sarja": "",
+            "sarja": data.sarjat[0].id,
             "jasenet": ["", ""]
         }
     });
@@ -119,6 +119,7 @@ const App = function(props) {
                 leimaustavat={leimaustavatMap}
                 sarjat={state.kilpailu.sarjat}
                 checkedCheckboxes={state.joukkue.leimaustapa}
+                selectedSarja={state.joukkue.sarja}
                 jasenet={state.joukkue.jasenet}/>
             <ListaaJoukkueet 
                 joukkueet={state.kilpailu.joukkueet}
@@ -146,7 +147,8 @@ const LisaaJoukkue = React.memo(function(props) {
                 change={handleInputMuutos}
                 leimaustavat={props.leimaustavat}
                 checkedCheckboxes={props.checkedCheckboxes}
-                sarjat={props.sarjat}/>
+                sarjat={props.sarjat}
+                selectedSarja={props.selectedSarja}/>
             <DynaamisetJasenet
                 jasenet={props.jasenet}/>
             <button onClick={handleLisaa}>Tallenna</button>
