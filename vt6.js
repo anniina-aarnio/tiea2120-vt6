@@ -111,7 +111,6 @@ const App = function(props) {
             uudetJasenet[index] = nimi;
         } else {
             uudetJasenet.push(nimi);
-            eventTarget.setCustomValidity("");
         }
 
         // onko nimi tyhjä? jos, niin poistetaan
@@ -124,6 +123,23 @@ const App = function(props) {
 
         if (!ekaTaiVikaTyhja && jasenluku < jasenkyselyidenMaara.max || jasenluku < jasenkyselyidenMaara.min) {
             uudetJasenet.push("");
+        }
+
+        let inputit = eventTarget.form.elements;
+        let jaseninputit = [];
+        for (let inputti of inputit) {
+            if (inputti.id.startsWith("jasen")) {
+                jaseninputit.push(inputti);
+            }
+        }
+        for (let i = 0; i < jaseninputit.length -1; i++) {
+            for (let j = i+1; j < jaseninputit.length; j++) {
+                if (jaseninputit[i].value.trim().toLowerCase() == jaseninputit[j].value.trim().toLowerCase()) {
+                    jaseninputit[j].setCustomValidity("Sama nimi on jo käytössä");
+                } else {
+                    jaseninputit[j].setCustomValidity("");
+                }
+            }
         }
 
         handleChange(kohta, uudetJasenet);
@@ -162,7 +178,6 @@ const App = function(props) {
         console.log("aloitetaan muokkaus:", uusijoukkue);
     };
 
-    // TODO ei vielä tallenna oikein o_O
     let handleTallenna = function (event) {
 
         let kentat = ["nimi", "leimaustapa", "sarja", "jasenet"];
