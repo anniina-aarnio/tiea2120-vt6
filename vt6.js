@@ -12,7 +12,7 @@ const App = function(props) {
     // huom. kaikissa tilanteissa ei kannata kopioida koko dataa
     const [state, setState] = React.useState({
         "kilpailu": kopioi_kilpailu(data),
-        "muokattavaJoukkue": data.joukkueet[0]
+        "muokattavaJoukkue": null
     });
     console.log( state.kilpailu, state.muokattavaJoukkue );
 
@@ -90,6 +90,18 @@ const App = function(props) {
         console.log("App sanoo: ", muokattuJoukkue);
     };
 
+    /**
+     * Vaihtaa annetun id:n joukkueen staten muokattavaksi joukkueeksi
+     * @param {String} joukkueenId 
+     */
+    let handleKlikattuJoukkueStateen = function(joukkueenId) {
+        let joukkue = etsiObjektiIdnPerusteella(joukkueenId, Array.from(state.kilpailu.joukkueet));
+
+        let uusistate = {...state};
+        uusistate.muokattavaJoukkue = joukkue;
+        setState(uusistate);
+    };
+
     /* jshint ignore:start */
     return (
         <div>
@@ -101,7 +113,8 @@ const App = function(props) {
                 muokattavaJoukkue={state.muokattavaJoukkue}/>
             <ListaaJoukkueet 
                 joukkueet={state.kilpailu.joukkueet}
-                leimaustavat={state.kilpailu.leimaustavat} />
+                leimaustavat={state.kilpailu.leimaustavat}
+                joukkueMuokkaukseen={handleKlikattuJoukkueStateen} />
         </div>
     );
     /* jshint ignore:end */
@@ -124,7 +137,6 @@ const LisaaJoukkue = React.memo(function(props) {
         joukkueenNimet.push(item.nimi);
     });
 
-
     /**
      * Luo tieto-objektin, jonka tiedoista täytetään lomakkeeseen
      * joko: tyhjän joukkueen tiedot
@@ -133,12 +145,13 @@ const LisaaJoukkue = React.memo(function(props) {
      */
     function muokattavanJoukkueenTiedot(joukkue) {
         let tietoObjekti = {};
+        console.log("muokattavanJoukkueenTiedot:", joukkue);
         if (joukkue) {
             tietoObjekti = {
-                nimi: joukkue.nimi,
-                leimaustapa: joukkue.leimaustapa,
-                sarja: joukkue.sarja.id,
-                jasenet: joukkue.jasenet
+                "nimi": joukkue.nimi,
+                "leimaustapa": joukkue.leimaustapa,
+                "sarja": joukkue.sarja.id,
+                "jasenet": joukkue.jasenet
             };
         }
         else {
@@ -153,13 +166,12 @@ const LisaaJoukkue = React.memo(function(props) {
                 jasenet: alkuJasenlista
             };
         }
+        console.log("mitä pitäisi täyttyä joukkueen tiedoiksi", tietoObjekti);
         return tietoObjekti;
 
     }
 
-    let taytetytTiedot = muokattavanJoukkueenTiedot(props.muokattavaJoukkue);
-
-    const [state, setState] = React.useState(taytetytTiedot);
+    const [state, setState] = React.useState(muokattavanJoukkueenTiedot(props.muokattavaJoukkue));
 
     /**
      * Jos joukkueen tiedoissa tai jäsenissä tulee muutosta
@@ -587,7 +599,8 @@ const ListaaJoukkueet = React.memo(function(props) {
 
     let handleClick = function(joukkueenID) {
         // mitä tehdään kun klikkaa urlia 
-        console.log(joukkueenID); 
+        console.log("ListaaJoukkueet handleClick: ", joukkueenID);
+        props.joukkueMuokkaukseen(joukkueenID);
     };
 
     /* jshint ignore:start */
