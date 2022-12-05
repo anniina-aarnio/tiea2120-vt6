@@ -29,6 +29,7 @@ const App = function(props) {
     console.log( state.kilpailu );
 
     let valitseHandle = function(kohta, event) {
+        console.log("valitse handle:", kohta, event.target);
         if (kohta == "nimi"){
             handleChange(kohta, event.target.value);
         }
@@ -36,7 +37,6 @@ const App = function(props) {
             handleChange(kohta, event.target.id);
         }
         else if (kohta == "leimaustapa") {
-            console.log("valitse handle:", kohta, event);
             handleLeimaustavat(kohta, event.target);
         }
         else if (kohta == "jasenet") {
@@ -50,17 +50,17 @@ const App = function(props) {
      */
     let handleLeimaustavat = function(kohta, eventTarget) {
         let objekti = eventTarget;
-        console.log(eventTarget);
+
         let uudetCheckboxit = Array.from(state.joukkue[kohta]);
 
         // jos nyt klikattiin checkatuksi, lisätään listaan
         let leimaustapanimi = objekti.previousSibling.textContent;
         if (objekti.checked) {
-            uudetCheckboxit.push(leimaustapanimi);
+            uudetCheckboxit.push(leimaustavatMap.get(leimaustapanimi));
                 
             // muuten poistetaan listasta
         } else {
-            uudetCheckboxit.splice(uudetCheckboxit.indexOf(leimaustapanimi), 1);
+            uudetCheckboxit.splice(uudetCheckboxit.indexOf(leimaustavatMap.get(leimaustapanimi)), 1);
         }
         handleChange(kohta, uudetCheckboxit);
     };
@@ -132,7 +132,6 @@ const LisaaJoukkue = React.memo(function(props) {
 
     let handleInputMuutos = function(kohta, event) {
         props.change(kohta, event);
-        console.log("LisaaJoukkue inputmuutos:", kohta, event);
     };
 
     let handleLisaa = function(event) {
@@ -224,6 +223,7 @@ const SarjaLista = React.memo(function SarjaLista(props) {
 
 const CheckboxLista = React.memo(function CheckboxLista(props) {
 
+    let aakkostetusti = Array.from(props.items.keys()).sort();
     let req = "";
     if (props.checked.length == 0) {
         req = "required";
@@ -236,15 +236,15 @@ const CheckboxLista = React.memo(function CheckboxLista(props) {
     /* jshint ignore:start */
     let listaus = [];
     let i = 0;
-    for (let item of props.items.keys()) {
+    for (let nimi of aakkostetusti) {
         let rivi = (
             <label className="nimi-inputilla" key={i}>
-                {item}
+                {nimi}
                 <input
                     type={props.type}
                     name={props.name}
                     onChange={muutaSisaltoa}
-                    checked={props.checked.includes(item)}
+                    checked={props.checked.includes(props.items.get(nimi))}
                     required={req}
                 />
             </label>
