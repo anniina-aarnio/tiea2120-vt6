@@ -10,229 +10,85 @@ const App = function(props) {
     // päivitettäessä React-komponentin tilaa on aina vanha tila kopioitava uudeksi
     // kopioimista varten on annettu valmis mallifunktio kopioi_kilpailu
     // huom. kaikissa tilanteissa ei kannata kopioida koko dataa
-    const [state, setState] = React.useState({
-        "kilpailu": kopioi_kilpailu(data),
-        "muokattavaJoukkue": null
-    });
-    console.log( state.kilpailu, state.muokattavaJoukkue );
-
-    // id uutta joukkuetta varten
-    let uusiJoukkueID = etsiIsoinID(Array.from(state.kilpailu.joukkueet));
-
-    // dynaamista jäsenkyselyä varten oletusluvut:
-    // minkä verran tyhjiä kenttiä alussa, minkä verran saa olla max
-    let jasenluku = { "min": 2, "max": 5 };
-
-    /**
-     * Lisää joukkueen App:n stateen
-     * lisattyJoukkue on seuraavankaltainen objekti:
-     * {
-     *  "nimi": ei-tyhjä-nimi,
-     *  "leimaustapa": [] (vähintään tyhjä array),
-     *  "sarja": pakollinen-valittu-sarja,
-     *  "jasenet": [jäsen1, jäsen2, ...] (vähintään 2 jäsentä)
-     * }
-     * @param {Object} lisattyJoukkue 
-     */
-    let lisaaJoukkue = function(lisattyJoukkue) {
-        // lisättyJoukkue lisätään uniikki id ja tyhjä rastileimaukset[]
-        lisattyJoukkue.id = uusiJoukkueID;
-        uusiJoukkueID += 1;
-        lisattyJoukkue.rastileimaukset = [];
-
-        // päivittää staten lisäämällä uuden joukkueen
-        let uusistate = {...state};
-        let uusidata = {...uusistate.kilpailu};
-        let uusiJoukkueListaus = Array.from(uusidata.joukkueet);
-        uusiJoukkueListaus.push(lisattyJoukkue);
-        uusidata.joukkueet = uusiJoukkueListaus;
-        uusistate.kilpailu = uusidata;
-        uusistate.muokattavaJoukkue = null;
-        setState(uusistate);
-
-        console.log("App sanoo: ", lisattyJoukkue, state.kilpailu);
-    };
-
-    /**
-     * Muokkaa joukkueen App:n stateen
-     * muokattuJoukkue on seuraavankaltainen objekti:
-     * {
-     *  "nimi": ei-tyhjä-nimi,
-     *  "leimaustapa": [] (vähintään tyhjä array),
-     *  "sarja": pakollinen-valittu-sarja,
-     *  "jasenet": [jäsen1, jäsen2, ...] (vähintään 2 jäsentä)
-     * }
-     * @param {Object} muokattuJoukkue 
-     */
-    let tallennaMuokattuJoukkue = function(muokattuJoukkue) {
-        // ottaa muokattavan joukkueen id:n yms: statesta
-        let joukkue = state.muokattavaJoukkue;
-        let uusistate = {...state};
-        let uusidata = {...uusistate.kilpailu};
-        let uusiJoukkueListaus = Array.from(uusidata.joukkueet);
-        muokattuJoukkue.id = joukkue.id;
-        muokattuJoukkue.rastileimaukset = joukkue.rastileimaukset;
-
-        // vaihdetaan muokatun joukkueen tiedot
-        for (let i = 0; i < uusiJoukkueListaus.length; i++) {
-            if (uusiJoukkueListaus[i].id == muokattuJoukkue.id) {
-                uusiJoukkueListaus[i] = muokattuJoukkue;
-                break;
-            }
-        }
-
-        // päivitetään state
-        uusidata.joukkueet = uusiJoukkueListaus;
-        uusistate.kilpailu = uusidata;
-        uusistate.muokattavaJoukkue = null;
-        setState(uusistate);
-
-        console.log("App sanoo: ", muokattuJoukkue);
-    };
-
-    /**
-     * Vaihtaa annetun id:n joukkueen staten muokattavaksi joukkueeksi
-     * @param {String} joukkueenId 
-     */
-    let handleKlikattuJoukkueStateen = function(joukkueenId) {
-        let joukkue = etsiObjektiIdnPerusteella(joukkueenId, Array.from(state.kilpailu.joukkueet));
-
-        let uusistate = {...state};
-        uusistate.muokattavaJoukkue = joukkue;
-        setState(uusistate);
-    };
-
-    /* jshint ignore:start */
-    return (
-        <div>
-            <LisaaJoukkue
-                lisaaJoukkue={lisaaJoukkue}
-                tallennaJoukkueenMuutokset={tallennaMuokattuJoukkue}
-                kilpailu={state.kilpailu}
-                jasenkyselyluku={jasenluku}
-                muokattavaJoukkue={state.muokattavaJoukkue}/>
-            <ListaaJoukkueet 
-                joukkueet={state.kilpailu.joukkueet}
-                leimaustavat={state.kilpailu.leimaustavat}
-                joukkueMuokkaukseen={handleKlikattuJoukkueStateen} />
-        </div>
-    );
-    /* jshint ignore:end */
-};
-
-
-/**
- * Propseissa:
- * .tallennaJoukkueenMuutokset (funktio, jolla muokattavan joukkueen tiedot muokataan Appin stateen)
- * .lisaaJoukkue (funktio, jolla joukkue lisätään Appin stateen)
- * .kilpailu (Appin statesta sen hetkinen kilpailu ~= data)
- * .jasenkyselyluku (min ja max, montako jäsentä kysytään)
- * @param {Object} props 
- * @returns JSX-muodossa form joukkueen lisäämiselle
- */
-const LisaaJoukkue = React.memo(function(props) {
-    let leimaustavat = Array.from(props.kilpailu.leimaustavat);
-    let joukkueenNimet = [];
-    Array.from(props.kilpailu.joukkueet).map((item) => {
-        joukkueenNimet.push(item.nimi);
-    });
-
-    /**
-     * Luo tieto-objektin, jonka tiedoista täytetään lomakkeeseen
-     * joko: tyhjän joukkueen tiedot
-     * tai: muokattavan joukkueen tiedot
-     * @param {Object} joukkue 
-     */
-    function muokattavanJoukkueenTiedot(joukkue) {
-        let tietoObjekti = {};
-        console.log("muokattavanJoukkueenTiedot:", joukkue);
-        if (joukkue) {
-            tietoObjekti = {
-                "nimi": joukkue.nimi,
-                "leimaustapa": joukkue.leimaustapa,
-                "sarja": joukkue.sarja.id,
-                "jasenet": joukkue.jasenet
-            };
-        }
-        else {
-            let alkuJasenlista = [];
-            for (let i = 0; i < props.jasenkyselyluku.min; i++) {
-                alkuJasenlista.push("");
-            }
-            tietoObjekti = {
-                nimi: "",
-                leimaustapa: [],
-                sarja: props.kilpailu.sarjat[0].id,
-                jasenet: alkuJasenlista
-            };
-        }
-        console.log("mitä pitäisi täyttyä joukkueen tiedoiksi", tietoObjekti);
-        return tietoObjekti;
-
+    let jasenkyselyidenMaara = { min: 2, max: 5};
+    let tyhjaJasenkyselylista = [];
+    for (let i = 0; i < jasenkyselyidenMaara.min; i++) {
+        tyhjaJasenkyselylista.push("");
     }
 
-    const [state, setState] = React.useState(muokattavanJoukkueenTiedot(props.muokattavaJoukkue));
+    const [state, setState] = React.useState({
+        "kilpailu": kopioi_kilpailu(data),
+        "joukkue": {
+            "nimi": "",
+            "leimaustapa": [],
+            "sarja": data.sarjat[0].id,
+            "jasenet": tyhjaJasenkyselylista
+        }
+    });
 
-    /**
-     * Jos joukkueen tiedoissa tai jäsenissä tulee muutosta
-     * kutsutaan tätä (kertomalla mitä kohtaa muutetaan)
-     * Nimi ja sarja muutetaan suoraan, koska niillä yksikäsitteinen arvo
-     * Leimaustapalista muutetaan erillisellä listaan perehtyneellä changella
-     * Jäsenet muutetaan toisella listaan perehtyneellä changella
-     * @param {String} kohta "nimi", "sarja", "leimaustapa" tai "jasenet"
-     * @param {Event.Target} eventTarget event.target
-     */
-    let valitseHandle = function(kohta, eventTarget) {
-        if (kohta == "nimi"){
-            handleChange(kohta, eventTarget.value);
+    let leimaustavatMapNimiNumero = new Map();
+    Array.from(state.kilpailu.leimaustavat).map((item, index) => {
+        leimaustavatMapNimiNumero.set(item, index);
+    });
+    let leimaustavatMapNumeroNimi = new Map();
+    Array.from(state.kilpailu.leimaustavat).map((item, index) => {
+        leimaustavatMapNumeroNimi.set(index, item);
+    });
+    
+    console.log( state.kilpailu );
+
+    let valitseHandle = function(kohta, event) {
+        if (kohta == "nimi") {
+
+            // tarkistetaan validityt
+            let validity = event.target.validity;
+            let joukkueennimet = [];
+            Array.from(state.kilpailu.joukkueet).map((item) => {
+                joukkueennimet.push(item.nimi.trim().toLowerCase());
+            });
+
+            if (validity.badInput || validity.patternMismatch || validity.rangeOverflow || validity.rangeUnderflow || validity.tooLong || validity.tooShort || validity.typeMismatch || validity.valueMissing || !event.target.value.trim()) {
+                event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti");
+            } else if (joukkueennimet.includes(event.target.value.trim().toLowerCase())) {
+                // jos muokatessa eri kuin alkuperäinen nimi
+                if (event.target.value.trim().toLowerCase() != state.joukkue.alkuperainenNimi) {
+                    event.target.setCustomValidity("Samanniminen joukkue on jo olemassa");
+                }
+            } else {
+                event.target.setCustomValidity("");
+            }
+            handleChange(kohta, event.target.value);
         }
         else if (kohta == "sarja") {
-            handleChange(kohta, eventTarget.id);
-        } else if (kohta == "leimaustapa") {
-            handleLeimaustavat(kohta, eventTarget);
-        } else if (kohta == "jasenet") {
-            handleJasenlista(kohta, eventTarget);
+            handleChange(kohta, event.target.id);
+        }
+        else if (kohta == "leimaustapa") {
+            handleLeimaustavat(kohta, event.target);
+        }
+        else if (kohta == "jasenet") {
+            handleJasenlista(kohta, event.target);
         }
     };
 
     /**
-     * Tekee shallow kopion statesta ja
-     * Vaihtaa annettuun kohtaan annetun sisällön
-     * @param {String} kohta 
-     * @param {Object} sisalto string tai array 
-     */
-    let handleChange = function(kohta, sisalto) {
-        let uusistate = {...state};
-        uusistate[kohta] = sisalto;
-        setState(uusistate);
-    };
-
-    /**
-     * Ylläpitää statessa tietoa checkatuista leimaustavoista
      * @param {String} kohta 
      * @param {Event.Target} eventTarget 
      */
     let handleLeimaustavat = function(kohta, eventTarget) {
         let objekti = eventTarget;
-        let type = objekti.type;
-        let newstate = {...state};
 
-        // käytännössä väkisinkin checkbox, mutta mahdollista yhdistelyä ajatellen...
-        if (type == "checkbox") {
+        let uudetCheckboxit = Array.from(state.joukkue[kohta]);
 
-            // luodaan uusi array nykyisistä checkatuista checkbokseista
-            newstate[kohta] = Array.from(state[kohta]);
-
-            // jos nyt klikattiin checkatuksi, lisätään listaan
-            if (objekti.checked) {
-                newstate[kohta].push(objekti.previousSibling.textContent);
-            
+        // jos nyt klikattiin checkatuksi, lisätään listaan
+        let leimaustapanimi = objekti.previousSibling.textContent;
+        if (objekti.checked) {
+            uudetCheckboxit.push(leimaustavatMapNimiNumero.get(leimaustapanimi));
+                
             // muuten poistetaan listasta
-            } else {
-                newstate[kohta].splice(newstate[kohta].indexOf(objekti.previousSibling.textContent), 1);
-            }
+        } else {
+            uudetCheckboxit.splice(uudetCheckboxit.indexOf(leimaustavatMapNimiNumero.get(leimaustapanimi)), 1);
         }
-        setState(newstate);
+        handleChange(kohta, uudetCheckboxit);
     };
 
     /**
@@ -243,9 +99,20 @@ const LisaaJoukkue = React.memo(function(props) {
     let handleJasenlista = function(kohta, eventTarget) {
         // otetaan käsitellyn jäsenen indeksi ylös
         let index = parseInt((eventTarget.id).replace(/[^0-9]/g, '')) - 1;
-        let uudetJasenet = Array.from(state.jasenet);
+        let uudetJasenet = Array.from(state.joukkue.jasenet);
 
         let nimi = eventTarget.value;
+        let validity = eventTarget.validity;
+        
+        if (validity.badInput || validity.patternMismatch || validity.rangeOverflow || validity.rangeUnderflow || validity.tooLong || validity.tooShort || validity.typeMismatch || validity.valueMissing || !eventTarget.value.trim()) {
+            console.log("sama nimi");
+            eventTarget.setCustomValidity("Vähintään yksi merkki (ei välilyönti");
+        } else if (uudetJasenet.includes(nimi.trim().toLowerCase())) {
+            // jos muokatessa eri kuin alkuperäinen nimi
+            eventTarget.setCustomValidity("Samanniminen jäsen on jo olemassa");
+        } else {
+            eventTarget.setCustomValidity("");
+        }
 
         // tarkistetaan onko sillä indeksillä jo sisältöä
         // jos on: muutetaan sitä
@@ -254,172 +121,193 @@ const LisaaJoukkue = React.memo(function(props) {
             uudetJasenet[index] = nimi;
         } else {
             uudetJasenet.push(nimi);
-            eventTarget.setCustomValidity("");
         }
 
-        // kun tämä tehty, tarkistetaan tilanne:
-        // onko jokin jäsenlistan kohdista tyhjä?
+        // onko nimi tyhjä? jos, niin poistetaan
         if (nimi == "") {
             uudetJasenet.splice(index, 1);
         }
+
         let jasenluku = uudetJasenet.length;
+        let ekaTaiVikaTyhja = (uudetJasenet[jasenluku - 1].trim() == "" || uudetJasenet[0].trim() == "");
 
-        // tarkistaa onko eka/alin jäsenkyselyn riveistä tyhjä ja lisää tyhjän
-        let ekaTaiVikaOnTyhja = (uudetJasenet[jasenluku - 1].trim() == "" || uudetJasenet[0].trim() == "");
-
-        // lisätään loppuun tyhjä, jos sellaista ei ole ja jos max jäsenkyselyluku ei ole vielä täynnä
-        // samoin jos jasenkyselyluku-minimin ali on menty, lisätään
-        if (!ekaTaiVikaOnTyhja && jasenluku < props.jasenkyselyluku.max || jasenluku < props.jasenkyselyluku.min) {
+        if (!ekaTaiVikaTyhja && jasenluku < jasenkyselyidenMaara.max || jasenluku < jasenkyselyidenMaara.min) {
             uudetJasenet.push("");
-        }
-
-        // TODO: dunno, miten korjataan ettei jätä customvalidityä voimaan jos
-        // yksi rivi poistuu ennen "         "-merkkijonoista ...
-        let inputit = eventTarget.parentElement.parentElement.elements;
-        for (let i = 0; i < inputit.length; i++) {
-            if (inputit[i].value.trim() == "" && (i != inputit.length -1 || i<props.jasenkyselyluku.min)) {
-                inputit[i].setCustomValidity("Vähintään yksi merkki (ei välilyönti)");
-            } else {
-                inputit[i].setCustomValidity("");
-            }
         }
 
         handleChange(kohta, uudetJasenet);
     };
 
     /**
-     * Hoitaa lisäysnapin painalluksen jälkeisen toiminnan:
-     * - luo uuden joukkueen
-     * - lisää siihen täydennetyt tiedot
-     * - tyhjentää staten alkutilanteeseen
-     * - kutsuu App:n lisaaJoukkue-funktiota
-     * @param {Event} event 
+     * Tallentaa kyseisen sisällön annettuun kohtaan state.joukkueessa
+     * @param {String} kohta 
+     * @param {*} sisalto 
      */
-    let handleLisaa = function(event) {
-        // uusiJoukkue sisältöineen
-        event.preventDefault();
+    let handleChange = function(kohta, sisalto) {
+        let uusistate = {...state};
+        let uusijoukkue = {...uusistate.joukkue};
+        uusijoukkue[kohta] = sisalto;
+        uusistate.joukkue = uusijoukkue;
+        setState(uusistate);
+    };
 
-        // tarkistaa että kaikissa kentissä on jotakin
+    let aloitaMuokkaus = function(event) {
+        let klikattuJoukkueID = event.target.id;
+        // luodaan joukkue joka laitetaan stateen
+        let etsitty = etsiObjektiIdnPerusteella(klikattuJoukkueID, state.kilpailu.joukkueet);
+        let uusijoukkue = {...etsitty, sarja: etsitty.sarja.id, jasenet: [...etsitty.jasenet], leimaustapa: [...etsitty.leimaustapa]};
+        if (uusijoukkue.jasenet.length < jasenkyselyidenMaara.max) {
+            uusijoukkue.jasenet.push("");
+        }
+
+        // muokkausta ja nimen vertailua varten state.joukkue.alkuperainenNimi
+        uusijoukkue.alkuperainenNimi = etsitty.nimi.trim().toLowerCase();
+
+        let uusistate = {...state};
+        uusistate.joukkue = uusijoukkue;
+
+        setState(uusistate);
+        
+        console.log("aloitetaan muokkaus:", uusijoukkue);
+    };
+
+    let handleTallenna = function (event) {
+
         let kentat = ["nimi", "leimaustapa", "sarja", "jasenet"];
         let virheita = 0;
         for (let kentta of kentat) {
-            if (state[kentta] == "" || state[kentta].length == 0) {
-                virheita +=1;
+            if (state.joukkue[kentta] == "" || state.joukkue[kentta].length == 0) {
+                virheita += 1;
                 if (kentta == "sarja") {
-                    // pitäisikö tehdä sarjoihin validitycheck..?
+                    // voisi tehdä validitycheckillä, mutta periaatteessa ei voi olla tyhjä
                     console.log("pitää olla valittuna vähintään yksi sarja");
                 }
             }
         }
 
+
         // luodaan jäsenistä sopivampi lista
         let palautettavatJasenet = [];
-        let jasenisto = Array.from(state.jasenet);
+        let jasenisto = Array.from(state.joukkue.jasenet);
         palautettavatJasenet = jasenisto.filter((item) => item.trim() != "");
+        console.log(palautettavatJasenet);
         if (palautettavatJasenet.length < 2) {
             virheita += 1;
-            // tee validityhomma ?? TODO - muualla ei toiminut oikein jos poisti välistä inputteja...
-            /* luoCustomValiditytJaseniin(); */
+            // TODO pitäisi tehdä validityillä mutta ....
         }
 
         // varmistaa että validityt eivät herjaa
         if (!event.target.form.checkValidity() || virheita > 0) {
+            console.log("virheitä", virheita);
             event.target.form.reportValidity();
             return;
         }
 
-        // luo uuden joukkueen, johon lisätään tiedot oikeassa muodossa App:n tietoihin lisäämistä varten
-        let uusiJoukkue = {...state};
+        // luo uuden joukkueen, jonka tiedot päivitetään vastaamaan formia
+        let uusistate = {...state};
+        let uusijoukkue = {...uusistate.joukkue};
+        let uusidata = {...uusistate.kilpailu};
+        let uusiJoukkuelistaus = Array.from(uusidata.joukkueet);
 
-        // lisätään sarja oikeassa muodossa
-        uusiJoukkue.sarja = etsiObjektiIdnPerusteella(uusiJoukkue.sarja, props.kilpailu.sarjat);
-
-        // lisätään leimauksien indeksit nimien sijaan
-        let palautettavatLeimaukset = [];
-        leimaustavat.map((item, index) => {
-            if (uusiJoukkue.leimaustapa.includes(item)) {
-                palautettavatLeimaukset.push(index);
+        uusijoukkue.sarja = etsiObjektiIdnPerusteella(uusijoukkue.sarja, state.kilpailu.sarjat);
+        uusijoukkue.jasenet = palautettavatJasenet;
+        // TODO tarkista tekeekö vain shallow kopion leimaustavoista ja jäsenistä TODO EI TOIMI OIKEIN
+        // jos on muokattava joukkue ....
+        if (uusijoukkue.id) {
+            for (let joukkue of uusiJoukkuelistaus) {
+                if (joukkue.id == uusijoukkue.id) {
+                    vaihdaJoukkueenTiedot(joukkue, uusijoukkue);
+                    joukkue = uusijoukkue;
+                    console.log("löytyi!", joukkue);
+                    break;
+                }
             }
-        });
-        uusiJoukkue.leimaustapa = palautettavatLeimaukset;
+        // jos ei muokattava niin täytyy olla uusi
+        } else {
+            uusijoukkue.id = etsiIsoinID(Array.from(state.kilpailu.joukkueet)) + 1;
+            uusijoukkue.rastileimaukset = [];
+            uusiJoukkuelistaus.push(uusijoukkue);
+        }
 
-        // lisätään palautettavatJasenet
-        uusiJoukkue.jasenet = palautettavatJasenet;
-
-        let tyhjaJoukkue = muokattavanJoukkueenTiedot(null);
-        // luodaan tyhjä joukkue, jolla tyhjennetään formi
-/*         let tyhjaJoukkue = {
+        let tyhjajoukkue = {
             "nimi": "",
             "leimaustapa": [],
-            "sarja": props.kilpailu.sarjat[0].id,
-            "jasenet": alkuJasenlista
-        }; */
-        setState(tyhjaJoukkue);
+            "sarja": data.sarjat[0].id,
+            "jasenet": tyhjaJasenkyselylista
+        };
+        // state joukkueen tyhjennys
+        uusistate.joukkue = tyhjajoukkue;
 
-        if (props.joukkue) {
-            // jos muokataan joukkuetta
-            props.tallennaJoukkueenMuutokset(uusiJoukkue);
-        }
-        else {
-            // lisätään joukkue App:n lisaaJoukkue-funktiolla
-            props.lisaaJoukkue(uusiJoukkue);
-        }
+        // stateen päivitys
+        uusidata.joukkueet = uusiJoukkuelistaus;
+        uusistate.kilpailu = uusidata;
+        setState(uusistate);
 
+
+        console.log("tallenna", tyhjajoukkue);
+    };
+
+
+
+    /* jshint ignore:start */
+    return (
+        <div>
+            <LisaaJoukkue
+                change={valitseHandle}
+                nimi={state.joukkue.nimi}
+                tallenna={handleTallenna}
+                leimaustavat={leimaustavatMapNimiNumero}
+                sarjat={state.kilpailu.sarjat}
+                checkedCheckboxes={state.joukkue.leimaustapa}
+                selectedSarja={state.joukkue.sarja}
+                jasenet={state.joukkue.jasenet}
+                minJasenmaara={jasenkyselyidenMaara.min}/>
+            <ListaaJoukkueet 
+                joukkueet={state.kilpailu.joukkueet}
+                leimaustavat={leimaustavatMapNumeroNimi}
+                klikatessa={aloitaMuokkaus}/>
+        </div>
+    );
+    /* jshint ignore:end */
+};
+
+const LisaaJoukkue = React.memo(function(props) {
+
+    let handleInputMuutos = function(kohta, event) {
+        props.change(kohta, event);
+    };
+
+    let handleLisaa = function(event) {
+        event.preventDefault();
+        console.log(event);
+        props.tallenna(event);
     };
 
     /* jshint ignore:start */
     return (
         <form>
             <JoukkueenTiedot
-                change={valitseHandle}
-                nimi={state.nimi}
-                nimet={joukkueenNimet}
-                sarjat={props.kilpailu.sarjat}
-                selectedSarja={state.sarja}
-                leimaustavat={leimaustavat}
-                checkedCheckboxes={state.leimaustapa}/>
+                nimi={props.nimi}
+                change={handleInputMuutos}
+                leimaustavat={props.leimaustavat}
+                checkedCheckboxes={props.checkedCheckboxes}
+                sarjat={props.sarjat}
+                selectedSarja={props.selectedSarja}/>
             <DynaamisetJasenet
-                jasenet={state.jasenet}
-                change={valitseHandle}
-                minJasenmaara={props.jasenkyselyluku.min} />
+                jasenet={props.jasenet}
+                minJasenmaara={props.minJasenmaara}
+                change={handleInputMuutos}/>
             <button onClick={handleLisaa}>Tallenna</button>
         </form>);
+    /* jshint ignore:end */
 });
 
-
-/**
- * JoukkueenTiedot pitää omaa statea, jossa on:
- * - inputtien tiedot (nimi, mitkä leimaustavat, sarjat)
- * Propseissa:
- * .change (funktio, joka muokkaa LisaaJoukkueen statea)
- * .nimi (LisaaJoukkue bindattu nimi inputtiin)
- * .sarjat (lista sarjoista)
- * .selectedSarja (LisaaJoukkue bindattu sarja input-joukkoon)
- * .leimaustavat (lista leimaustavoista)
- * .checkedCheckboxes (bindattu lista tsekatuista leimaustavoista)
- */
 const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 
-    let sarjat = Array.from(props.sarjat);
-    sarjat.sort(aakkosjarjestysNimenMukaan);
-
-    let nimet = Array.from(props.nimet).map((item) => item.trim().toLowerCase());
-
-    let leimaustavat = Array.from(props.leimaustavat).sort();
-
     let muutaNimea = function(event) {
-        let validity = event.target.validity;
-        if (validity.badInput || validity.patternMismatch || validity.rangeOverflow || validity.rangeUnderflow || validity.tooLong || validity.tooShort || validity.typeMismatch || validity.valueMissing || !event.target.value.trim()) {
-            event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti)");
-        } else if (nimet.includes(event.target.value.trim().toLowerCase())) {
-            event.target.setCustomValidity("Samanniminen joukkue on jo olemassa");
-        } else {
-            event.target.setCustomValidity("");
-        }
-        props.change("nimi", event.target);
+        props.change("nimi", event);
     };
-
-
+    
     let muutaInputinSisaltoa = function(kohta, event) {
         props.change(kohta, event);
     };
@@ -433,11 +321,11 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
             </label>
             <div className="leimaustavat-kokonaisuus">
                 <label>Leimaustavat</label>
-                <CheckboxLista name="leimaustapa" change={muutaInputinSisaltoa} items={leimaustavat} type="checkbox" checked={props.checkedCheckboxes}/>
+                <CheckboxLista name="leimaustapa" change={muutaInputinSisaltoa} items={props.leimaustavat} type="checkbox" checked={props.checkedCheckboxes}/>
             </div>
             <div className="sarjat-kokonaisuus">
                 <label>Sarjat</label>
-                <SarjaLista name="sarja" change={muutaInputinSisaltoa} type="radio" items={sarjat} selected={props.selectedSarja} />
+                <SarjaLista name="sarja" change={muutaInputinSisaltoa} type="radio" items={props.sarjat} selected={props.selectedSarja} />
             </div>
 
         </fieldset>
@@ -445,16 +333,18 @@ const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
     /* jshint ignore:end */
 });
 
+
 const SarjaLista = React.memo(function SarjaLista(props) {
+    let aakkostettu = Array.from(props.items).sort(aakkosjarjestysNimenMukaan);
 
     let muutaSisaltoa = function (event) {
-        props.change(props.name, event.target);
+        props.change(props.name, event);
     };
 
     /* jshint ignore:start */
     let listaus = [];
     let i = 0;
-    for (let item of props.items) {
+    for (let item of aakkostettu) {
         let rivi = (
             <label className="nimi-inputilla" key={item.id}>
                 {item.nimi}
@@ -480,29 +370,30 @@ const SarjaLista = React.memo(function SarjaLista(props) {
     /* jshint ignore:end */
 });
 
- const CheckboxLista = React.memo(function CheckboxLista(props) {
+const CheckboxLista = React.memo(function CheckboxLista(props) {
 
+    let aakkostetusti = Array.from(props.items.keys()).sort();
     let req = "";
     if (props.checked.length == 0) {
         req = "required";
     }
 
     let muutaSisaltoa = function (event) {
-        props.change(props.name, event.target);
+        props.change(props.name, event);
     };
 
     /* jshint ignore:start */
     let listaus = [];
     let i = 0;
-    for (let item of props.items) {
+    for (let nimi of aakkostetusti) {
         let rivi = (
             <label className="nimi-inputilla" key={i}>
-                {item}
+                {nimi}
                 <input
                     type={props.type}
                     name={props.name}
                     onChange={muutaSisaltoa}
-                    checked={props.checked.includes(item)}
+                    checked={props.checked.includes(props.items.get(nimi))}
                     required={req}
                 />
             </label>
@@ -521,41 +412,15 @@ const SarjaLista = React.memo(function SarjaLista(props) {
     /* jshint ignore:end */
 });
 
-/**
- * JoukkueenTiedot pitää omaa statea, jossa on:
- * - jaseninputtien tiedot
- * Propseissa tuo:
- * .jasenet (lista jäsenistä)
- * .change (funktio, joka muokkaa LisaaJoukkueen statea)
- * .minJasenmaara (vähimmäismäärä required jäsenistä)
- */
+
 const DynaamisetJasenet = function DynaamisetJasenet(props) {
 
     // tarkistuksia varten jäsenet pienellä lista
     let jasenetPienella = Array.from(props.jasenet).map((item) => item.trim().toLowerCase());
 
-    // funktio jäsenen muuttamista varten
-    let muutaJasenta = function(event, index) {
-        // TODO poista nämä jos aiheettomia ajatuksia
-/*      // nämä eivät olleet tehtävän kannalta pakollisia, joten pois käytöstä
-        // aiheutti virheen tilanteessa, kun kirjoitti kaksi samaa nimeä ja
-        // poisti ensimmäisen niin jälkimmäiset siirtyivät yhden ylöspäin
-        // ja validity jäi alimpaan ruutuun voimaan
-        if (event.target.value != "" && jasenetPienella.includes(event.target.value.trim().toLowerCase())) {
-            event.target.setCustomValidity("Jokaisen jäsenen nimen tulee olla uniikki");
-        } else {
-            event.target.setCustomValidity("");
-        } 
-        let nimi = event.target.value;
-        if (nimi.trim() == "") {
-            event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti)");
-        } else {
-            event.target.setCustomValidity("");
-        }*/
-
-        props.change("jasenet", event.target);
+    let muutaJasenta = function(event) {
+        props.change("jasenet", event);
     };
-
 
     /* jshint ignore:start */
     // luo dynaamisesti oikean määrän jäsenkyselyrivejä
@@ -568,7 +433,7 @@ const DynaamisetJasenet = function DynaamisetJasenet(props) {
         let id = "jasen" + i;
         let rivi = (
             <label key={i}>Jäsen {i}
-                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={(e)=>muutaJasenta(e, i)}/>
+                <input type="text" id={id} value={props.jasenet[i-1]} required={req} onChange={muutaJasenta}/>
             </label>
         )
         jasenKyselyt.push(rivi);
@@ -585,38 +450,34 @@ const DynaamisetJasenet = function DynaamisetJasenet(props) {
     /* jshint ignore:end */
 };
 
-/**
- * Listaa joukkueet aakkosjärjestykseen ensisijaisesti sarjan mukaan,
- * sitten joukkueen nimen mukaan
- * Joukkueen yhteydessä listataan myös joukkueen käyttämät leimaustavat aakkosjärjestyksessä
- * Propseissa tulee tiedot:
- * .joukkueet (lista joukkue-objekteista, joista haetaan tiedot)
- * .leimaustavat (lista leimaustavoista, joiden indeksit löytyvät joukkueista)
- */
+
 const ListaaJoukkueet = React.memo(function(props) {
+    console.log("Listaa joukkueet: ", props);
     let joukkueetJarjestyksessa = Array.from(props.joukkueet).sort(aakkostaSarjanJaNimenMukaan);
 
 
-    let handleClick = function(joukkueenID) {
-        // mitä tehdään kun klikkaa urlia 
-        console.log("ListaaJoukkueet handleClick: ", joukkueenID);
-        props.joukkueMuokkaukseen(joukkueenID);
+    let handleClick = function(event) {
+        // mitä tehdään kun klikkaa urlia   
+        props.klikatessa(event); 
     };
 
     /* jshint ignore:start */
     let rivit = [];
     for (let joukkue of joukkueetJarjestyksessa) {
         let leimaustapalista = [];
-        for (let lt of joukkue.leimaustapa) {
-            leimaustapalista.push(
-                <li key={lt}>{props.leimaustavat[lt]}</li>);
-        }
-        leimaustapalista.sort(); // nämä annetaan propsina JoukkueRiville
+        let aakkostettu = joukkue.leimaustapa.sort((a,b) => {
+            if (props.leimaustavat.get(a) < props.leimaustavat.get(b)) {
+                return -1
+            } else if (props.leimaustavat.get(b) < props.leimaustavat.get(a)) {
+                return 1;
+            }
+            return 0;
+        });
 
-        // TODO
-        // lisää joukkueen nimestä linkki, jota klikatessa kyseisen joukkueen tiedot ilmestyvät lomakkeelle muokattaviksi
-        // tietoja muuttaessa on käytössä samat rajoitteet kuin uutta joukkuetta lisättäessä
-        // muutettujen tietojen tallentamisen jälkeen joukkuelistaus päivittyy vastaamaan muutettuja tietoja
+        for (let lt of aakkostettu) {
+            leimaustapalista.push(
+                <li key={lt}>{props.leimaustavat.get(lt)}</li>);
+        }
 
         let rivi = (
             // joukkueen tiedot oma komponenttinsa
@@ -642,22 +503,14 @@ const ListaaJoukkueet = React.memo(function(props) {
     /* jshint ignore:end */
 });
 
-
-/**
- * JoukkueRivi, saa propseissa:
- * .key (joukkueen id)
- * .joukkue (joukkue-objekti)
- * .url (mihin menee kun klikkaa)
- * .leimaustapalista (joukkueen leimaustapalista aakkosjärjestyksessä)
- * .klikatessa (funktio, jonka toteuttaa kun joukueen nimeä klikataan)
- */
 const JoukkueRivi = React.memo(function JoukkueRivi(props) {
     let joukkue = props.joukkue;
 
-    let handleKlikkaus = function(event) {
-        props.klikatessa(event.target.id);
+    let handleKlikkaus = function (event) {
+        props.klikatessa(event);
     };
 
+    // TODO vaihda id={joukkue.id} sellaiseksi joka alkaa kirjaimella
     /* jshint ignore:start */
     return (
         <tr>
@@ -666,7 +519,7 @@ const JoukkueRivi = React.memo(function JoukkueRivi(props) {
             </th>
             <th>
                 <div>
-                    <a href={props.url} onClick={handleKlikkaus} id={joukkue.id}>{joukkue.nimi}</a>
+                    <a href={props.url} id={joukkue.id} onClick={handleKlikkaus}>{joukkue.nimi}</a>
                 </div>
                 <div>
                     <ul className="leimaustapalista">
@@ -681,7 +534,6 @@ const JoukkueRivi = React.memo(function JoukkueRivi(props) {
     )
     /* jshint ignore:end */
 });
-
 
 const JasenListaus = React.memo(function JasenListaus(props) {
     /* jshint ignore:start */
@@ -708,6 +560,8 @@ root.render(
     /* jshint ignore:end */
 );
 
+
+// --------- APUFUNKTIOITA -----------------
 
 // datarakenteen kopioiminen
 // joukkueen leimausten rasti on viite rastitaulukon rasteihin
@@ -768,13 +622,25 @@ function kopioi_kilpailu(data) {
 }
 
 /**
+ * Vaihtaa vanhan joukkueen tiedot uuden joukkueen tietoihin
+ * @param {Object} vanhaJoukkue 
+ * @param {Object} uusiJoukkue 
+ */
+function vaihdaJoukkueenTiedot(vanhaJoukkue, uusiJoukkue) {
+    let kohdat = ["nimi", "jasenet", "sarja", "leimaustapa"];
+    for (let kohta of kohdat) {
+        vanhaJoukkue[kohta] = uusiJoukkue[kohta];
+    }
+}
+
+/**
  * Sorting-funktion apufunktio
  * Ottaa kaksi objektia, joilla on kenttä "nimi"
  * @param {Object} a 
  * @param {Object} b 
  * @returns 
  */
-function aakkosjarjestysNimenMukaan(a,b) {
+ function aakkosjarjestysNimenMukaan(a,b) {
     if (a.nimi < b.nimi) {
         return -1;
     } else if (b.nimi < a.nimi) {
@@ -815,15 +681,15 @@ function aakkostaSarjanJaNimenMukaan(a,b) {
 }
 
 /**
- * Etsii objektin id-numeron perusteella.
+ * Etsii objektin, jolla on objekti.id id-numeron perusteella.
  * Id on annettu merkkijonona
  * @param {String} id 
- * @return objekti, jolla objekti.id = annettu id
+ * @return objekti
  */
-function etsiObjektiIdnPerusteella(id, objektilista) {
-    for (let objekti of objektilista) {
-        if (objekti.id == id) {
-            return objekti;
+function etsiObjektiIdnPerusteella(id, objektit) {
+    for (let obj of objektit) {
+        if (obj.id == id) {
+            return obj;
         }
     }
 }
