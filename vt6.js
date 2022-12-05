@@ -174,13 +174,14 @@ const App = function(props) {
             uusiJoukkuelistaus.push(uusijoukkue);
         }
 
-        // state joukkueen tyhjennys
-        uusistate.joukkue = {
+        let tyhjajoukkue = {
             "nimi": "",
             "leimaustapa": [],
             "sarja": data.sarjat[0].id,
             "jasenet": tyhjaJasenkyselylista
         };
+        // state joukkueen tyhjennys
+        uusistate.joukkue = tyhjajoukkue;
 
         // stateen päivitys
         uusidata.joukkueet = uusiJoukkuelistaus;
@@ -198,6 +199,7 @@ const App = function(props) {
         <div>
             <LisaaJoukkue
                 change={valitseHandle}
+                nimi={state.joukkue.nimi}
                 tallenna={handleTallenna}
                 leimaustavat={leimaustavatMap}
                 sarjat={state.kilpailu.sarjat}
@@ -229,6 +231,7 @@ const LisaaJoukkue = React.memo(function(props) {
     return (
         <form>
             <JoukkueenTiedot
+                nimi={props.nimi}
                 change={handleInputMuutos}
                 leimaustavat={props.leimaustavat}
                 checkedCheckboxes={props.checkedCheckboxes}
