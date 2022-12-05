@@ -100,7 +100,7 @@ const App = function(props) {
         let uusijoukkue = {...uusistate.joukkue};
         uusijoukkue[kohta] = sisalto;
         uusistate.joukkue = uusijoukkue;
-        console.log("uusi state ennen changea:", uusistate);
+        console.log("uusi state ennen handleChangea:", uusistate);
         setState(uusistate);
     };
 
@@ -157,7 +157,7 @@ const LisaaJoukkue = React.memo(function(props) {
 const JoukkueenTiedot = React.memo(function JoukkueenTiedot(props) {
 
     let muutaNimea = function(event) {
-        props.muutaNimea(event);
+        props.change("nimi", event);
     };
     
     let muutaInputinSisaltoa = function(kohta, event) {
