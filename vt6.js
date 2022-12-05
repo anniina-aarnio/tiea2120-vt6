@@ -34,7 +34,21 @@ const App = function(props) {
     console.log( state.kilpailu );
 
     let valitseHandle = function(kohta, event) {
-        if (kohta == "nimi"){
+        if (kohta == "nimi") {
+
+            // tarkistetaan validityt
+            let validity = event.target.validity;
+            let joukkueennimet = [];
+            Array.from(state.kilpailu.joukkueet).map((item) => {
+                joukkueennimet.push(item.nimi.trim().toLowerCase());
+            });
+
+            if (validity.badInput || validity.patternMismatch || validity.rangeOverflow || validity.rangeUnderflow || validity.tooLong || validity.tooShort || validity.typeMismatch || validity.valueMissing || !event.target.value.trim()) {
+                console.log("sama nimi");
+                event.target.setCustomValidity("Vähintään yksi merkki (ei välilyönti");
+            } else if (joukkueennimet.includes(event.target.value.trim().toLowerCase())) {
+                event.target.setCustomValidity("Samanniminen joukkue on jo olemassa");
+            }
             handleChange(kohta, event.target.value);
         }
         else if (kohta == "sarja") {
@@ -132,6 +146,7 @@ const App = function(props) {
                 }
             }
         }
+
 
         // luodaan jäsenistä sopivampi lista
         let palautettavatJasenet = [];
